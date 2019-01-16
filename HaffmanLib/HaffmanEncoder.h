@@ -5,25 +5,72 @@
 
 namespace Haffman
 {
+
+
+struct TreeCodeBuff {
+  enum {
+    DigitCount = sizeof(byte) * 8
+  };
+
+  byte _buffer = 0;
+  byte _bufferedCount = 0;
+  bool isEmpty() const { return _bufferedCount == 0; }
+  bool emplace(const TreeCode & treeCode, byte & toBeWrote);
+
+  void reset() { _buffer = 0; _bufferedCount = 0; }
+
+  byte getPaddingSize() const;
+};
+
 class HaffmanEncoder
 {
 public:
   HaffmanEncoder() = default;
 
+  bool encodeHeader(const FrequencyTable & freqTable, VecByte & buffer);
   template <typename T>
-  bool encode(T begin, T end, VecByte & buffer);
+  bool encodePayload(const HaffmanTree & haffmanTree, T begin, T end, VecByte & buffer);
   bool encode(const VecFreqItem &, VecByte & buffer);
+
   bool encode(const FreqItem &, VecByte & buffer);
+  bool encode(const VecTreeCode &, VecByte & buffer);
+  bool encode(const TreeCode & treeCode, VecByte & buffer);
 
   template <typename T>
-  void write(T value, VecByte & buffer) const;
+  void write(T value, VecByte & buffer);
 
 private:
 
+
+  TreeCodeBuff _writeCodeState;
+  uint _wroteSize = 0;
+  bool encode(const TreeCodeBuff & writeCodesState, VecByte & buffer);
+
   enum {
-    ReadByCount = 50
+    ReadByCount = 3
   };
 };
+
+
+template <typename T>
+bool HaffmanEncoder::encodePayload(const HaffmanTree & haffmanTree, T begin, T end, VecByte & buffer) {
+  uint baseBuffSize = buffer.size();
+  write((uint)0, buffer); //write size
+  write((byte)0, buffer); //write padding
+  for (auto i = begin; i != end; ++i)
+    encode(haffmanTree.getCode(*i), buffer);
+
+  if (!_writeCodeState.isEmpty())
+    write(_writeCodeState._buffer, buffer);
+  uint wroteSize =  buffer.size() - baseBuffSize;
+  if (wroteSize < 5)
+  {
+    std::cerr << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes" << std::endl;
+    return false;
+  }
+  *reinterpret_cast<uint*>(&buffer[baseBuffSize + 0]) = wroteSize;
+  *reinterpret_cast<byte*>(&buffer[baseBuffSize + 4]) = _writeCodeState.getPaddingSize();
+}
 }
 
 #endif //HAFFMAN_HAFFMANENCODER_H

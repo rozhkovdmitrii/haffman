@@ -44,7 +44,10 @@ TEST_F(FrequencyTest, TreeCodeInitTest) {
 
 TEST_F(FrequencyTest, SymFreqLessTest) {
   std::vector<Haffman::LeafNode> vec = {{'d', 5}, {'c', 1}, {'b', 1}};
-  std::sort(vec.begin(), vec.end(), [](const Haffman::LeafNode & left, const Haffman::LeafNode & right) -> bool { return left.getFreq() > right.getFreq(); });
+  std::sort(vec.begin(), vec.end(),
+            [](const Haffman::LeafNode & left, const Haffman::LeafNode & right) -> bool {
+              return left.getFreq() > right.getFreq();
+            });
   EXPECT_EQ('d', vec[0]._sym);
   EXPECT_EQ('c', vec[1]._sym);
   EXPECT_EQ('b', vec[2]._sym);
@@ -59,7 +62,7 @@ TEST_F(FrequencyTest, FrequencyTest_Test) {
   const std::string seq2 = "oop beer!";
   _frequencyTable->takeFrequency(seq1.cbegin(), seq1.cend());
   _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
-  HaffmanTree haffmanTree = _frequencyTable->getTree();
+  HaffmanTree haffmanTree = _frequencyTable->getHaffmanTree();
 
   ASSERT_NE(nullptr, haffmanTree.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree.getTop()->getType());
@@ -146,7 +149,7 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   const std::string seq = "beep boop beer!";
   _frequencyTable->takeFrequency(seq.cbegin(), seq.cend());
 
-  HaffmanTree haffmanTree = _frequencyTable->getTree();
+  HaffmanTree haffmanTree = _frequencyTable->getHaffmanTree();
   EXPECT_NE(nullptr, haffmanTree.getTop());
 
   EXPECT_EQ(TreeCode({0, 0}), haffmanTree.getCode('z'));
@@ -161,7 +164,7 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   _frequencyTable->reset();
   _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
 
-  HaffmanTree haffmanTree1 = _frequencyTable->getTree();
+  HaffmanTree haffmanTree1 = _frequencyTable->getHaffmanTree();
   ASSERT_NE(nullptr, haffmanTree1.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree1.getTop()->getType());
   EXPECT_EQ(14, haffmanTree1.getTop()->getFreq());
@@ -183,33 +186,140 @@ TEST_F(FrequencyTest, EncodeFreqItemTest)
   EXPECT_EQ(expected, ebuffer);
 }
 
+
+TEST_F(FrequencyTest, EncodingTreeCodesTest)
+{
+  FrequencyTable tbl;
+  std::string str = "beep boop beer!";
+  tbl.takeFrequency(str.begin(), str.end());
+  HaffmanTree haffmanTree = tbl.getHaffmanTree();
+
+  const TreeCode & space = haffmanTree.getCode(' ');
+  const TreeCode & b = haffmanTree.getCode('b');
+  const TreeCode & e = haffmanTree.getCode('e');
+  const TreeCode & p = haffmanTree.getCode('p');
+  const TreeCode & shout = haffmanTree.getCode('!');
+  const TreeCode & o = haffmanTree.getCode('o');
+  const TreeCode & r = haffmanTree.getCode('r');
+
+
+
+  TreeCodeBuff treeCodeBuff;
+
+  byte toBeWrote = 0;
+  ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
+  EXPECT_EQ(0, toBeWrote);
+  EXPECT_EQ(0x00, treeCodeBuff._buffer);
+  EXPECT_EQ(2, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
+  EXPECT_EQ(0, toBeWrote);
+  EXPECT_EQ(0x20, treeCodeBuff._buffer);
+  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
+  EXPECT_EQ(0, toBeWrote);
+  EXPECT_EQ(0x28, treeCodeBuff._buffer);
+  EXPECT_EQ(6, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(true, treeCodeBuff.emplace(p, toBeWrote));
+  EXPECT_EQ(0x29, toBeWrote);
+  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  toBeWrote = 0;
+
+  EXPECT_EQ(1, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(space, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0xE0, treeCodeBuff._buffer);
+  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0xE0, treeCodeBuff._buffer);
+  EXPECT_EQ(6, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(true, treeCodeBuff.emplace(o, toBeWrote));
+  EXPECT_EQ(0xE3, toBeWrote);
+  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  EXPECT_EQ(1, treeCodeBuff._bufferedCount);
+  toBeWrote = 0;
+
+  ASSERT_EQ(false, treeCodeBuff.emplace(o, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0xF0, treeCodeBuff._buffer);
+  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+
+  ASSERT_EQ(false, treeCodeBuff.emplace(p, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0xF6, treeCodeBuff._buffer);
+  EXPECT_EQ(7, treeCodeBuff._bufferedCount);
+
+  ASSERT_EQ(true, treeCodeBuff.emplace(space, toBeWrote));
+  EXPECT_EQ(0xF7, toBeWrote);
+  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  EXPECT_EQ(2, treeCodeBuff._bufferedCount);
+  toBeWrote = 0;
+
+  ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+
+  ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0x88, treeCodeBuff._buffer);
+  EXPECT_EQ(6, treeCodeBuff._bufferedCount);
+
+  ASSERT_EQ(true, treeCodeBuff.emplace(e, toBeWrote));
+  EXPECT_EQ(0x8A, toBeWrote);
+  EXPECT_EQ(0x00, treeCodeBuff._buffer);
+  EXPECT_EQ(0, treeCodeBuff._bufferedCount);
+  toBeWrote = 0;
+
+  ASSERT_EQ(false, treeCodeBuff.emplace(r, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0x40, treeCodeBuff._buffer);
+  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+
+  ASSERT_EQ(true, treeCodeBuff.emplace(shout, toBeWrote));
+  EXPECT_EQ(0x45, toBeWrote);
+  EXPECT_EQ(0x00, treeCodeBuff._buffer);
+  EXPECT_EQ(0, treeCodeBuff._bufferedCount);
+  toBeWrote = 0;
+
+  VecTreeCode vecTreeCode { b, e, e, p, space,  b, o, o, p, space, b, e, e, r, shout };
+  HaffmanEncoder encoder;
+
+  VecByte expected {
+    0x0A, 0x00, 0x00, 0x00,        // size
+    0x00,                          // padding
+    0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
+  };
+  VecByte buffer;
+  encoder.encode(vecTreeCode, buffer);
+  EXPECT_EQ(buffer, expected);
+
+}
+
+
 TEST_F(FrequencyTest, TestEncoding)
 {
-/*  VecByte encShouldBe = {
-//     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //0-15
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //16-31
-    0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //32-47
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //48-63
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //64-79
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //80-95
-    0x00, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, //96-111
-    0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //112-127
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //128-143
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //144-159
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //160-175
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //176-191
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //192-207
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //208-223
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //224-239
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //240-255
-    0x00, //padding
-    0x29, 0xf3, 0x67, 0xca, 0x58
+  VecByte expectedHeader = {
+    0x07,                         //size of frequency pack
+    ' ', 0x02, 0x00, 0x00, 0x00,
+    '!', 0x01, 0x00, 0x00, 0x00,
+    'b', 0x03, 0x00, 0x00, 0x00,
+    'e', 0x04, 0x00, 0x00, 0x00,
+    'o', 0x02, 0x00, 0x00, 0x00,
+    'p', 0x02, 0x00, 0x00, 0x00,
+    'r', 0x01, 0x00, 0x00, 0x00,
+    0x0A, 0x00, 0x00, 0x00,        // size
+    0x00,                          // padding
+    0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
   };
 
   HaffmanEncoder encoder;
   std::string seq("beep boop beer!");
-  VecByte encActual;
-  encoder.encode(seq.begin(), seq.end(), encActual.begin());*/
 
+  _frequencyTable->takeFrequency(seq.begin(), seq.end());
+
+  VecByte buffer;
+  encoder.encodeHeader(*_frequencyTable, buffer);
+  encoder.encodePayload(_frequencyTable->getHaffmanTree(), seq.begin(), seq.end(), buffer);
+  EXPECT_EQ(expectedHeader, buffer);
 }

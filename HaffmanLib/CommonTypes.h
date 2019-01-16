@@ -16,6 +16,8 @@ struct FreqItem {
 };
 
 typedef std::vector<FreqItem> VecFreqItem;
+typedef std::vector<unsigned int> VecUInt;
+typedef std::array<unsigned int, 256> ArrUInt256;
 typedef std::vector<byte> VecByte;
 
 }

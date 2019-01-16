@@ -18,6 +18,8 @@ struct TreeCode
   TreeCode getCodeToTheRight() const;
   bool operator==(const TreeCode & right) const;
 };
+typedef std::vector<TreeCode> VecTreeCode;
+typedef std::vector<TreeCode &> VecTreeCodeRef;
 
 std::ostream & operator<<(std::ostream& os, const TreeCode & treeCode);
 
@@ -88,14 +90,12 @@ class HaffmanTree
 {
 public:
   explicit HaffmanTree(const VecFreqItem & vecFreqItem);
-  HaffmanTree(HaffmanTree && haffmanTree) {}
 
   ~HaffmanTree();
   JoinNode * getTop() const;
   std::string toString() const;
-  const TreeCode & getCode(char sym) const;
+  const TreeCode & getCode(byte sym) const;
 
-  // TODO: move constructor
 private:
   void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
   void indexTree();

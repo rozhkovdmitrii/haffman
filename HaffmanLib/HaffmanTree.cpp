@@ -167,7 +167,9 @@ void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr) {
   reset();
 
   std::vector<TreeNode*> workTable(vecLeafNodePtr.begin(), vecLeafNodePtr.end());
-  auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool { return left->getFreq() > right->getFreq(); };
+  auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool {
+    return left->getFreq() > right->getFreq();
+  };
   std::priority_queue<TreeNode *, std::vector<TreeNode *>, decltype(cmp)> queue(cmp, workTable);
 
   JoinNode * join = new JoinNode;
@@ -210,7 +212,7 @@ std::string HaffmanTree::toString() const {
   return (_top == nullptr) ? "()" : _top->toString();
 }
 
-const TreeCode & HaffmanTree::getCode(char sym) const {
+const TreeCode & HaffmanTree::getCode(byte sym) const {
   return _rawLeafNodes[sym].getCode();
 }
 
