@@ -87,12 +87,15 @@ private:
 class HaffmanTree
 {
 public:
-  explicit HaffmanTree(const VecFreqItemPtr & vecFreqItemPtr);
+  explicit HaffmanTree(const VecFreqItem & vecFreqItem);
+  HaffmanTree(HaffmanTree && haffmanTree) {}
+
   ~HaffmanTree();
   JoinNode * getTop() const;
   std::string toString() const;
   const TreeCode & getCode(char sym) const;
 
+  // TODO: move constructor
 private:
   void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
   void indexTree();

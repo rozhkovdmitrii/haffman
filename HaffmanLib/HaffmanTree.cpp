@@ -143,14 +143,17 @@ const TreeCode & LeafNode::getCode() const {
   return _code;
 }
 
-HaffmanTree::HaffmanTree(const VecFreqItemPtr & vecFreqItemPtr) {
+HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
 
-  for (int i = 0; i < _rawLeafNodes.size(); ++i) _rawLeafNodes[i]._sym = (byte) i;
+  for (int i = 0; i < _rawLeafNodes.size(); ++i)
+    _rawLeafNodes[i]._sym = (byte) i;
+
   VecLeafNodePtr vecLeafNodePtr;
-  for (const auto & freqItemPtr : vecFreqItemPtr) {
-    _rawLeafNodes[freqItemPtr->_sym].setFreq(freqItemPtr->_freq);
-    vecLeafNodePtr.push_back(&_rawLeafNodes[freqItemPtr->_sym]);
+  for (const auto & freqItemPtr : vecFreqItem) {
+    _rawLeafNodes[freqItemPtr._sym].setFreq(freqItemPtr._freq);
+    vecLeafNodePtr.push_back(&_rawLeafNodes[freqItemPtr._sym]);
   }
+
   buildTree(vecLeafNodePtr);
   indexTree();
 }

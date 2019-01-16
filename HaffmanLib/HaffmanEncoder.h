@@ -7,12 +7,22 @@ namespace Haffman
 {
 class HaffmanEncoder
 {
+public:
   HaffmanEncoder() = default;
 
-  bool readFreqTable(const std::string filename);
+  template <typename T>
+  bool encode(T begin, T end, VecByte & buffer);
+  bool encode(const VecFreqItem &, VecByte & buffer);
+  bool encode(const FreqItem &, VecByte & buffer);
+
+  template <typename T>
+  void write(T value, VecByte & buffer) const;
 
 private:
-  FrequencyTable _freqTable;
+
+  enum {
+    ReadByCount = 50
+  };
 };
 }
 

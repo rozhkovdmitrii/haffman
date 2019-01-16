@@ -15,26 +15,21 @@ public:
   FrequencyTable();
   ~FrequencyTable() = default;
 
-  template<typename T>
+  template<typename T/*, class InT = typename std::enable_if_t<std::is_same<byte,std::decay_t<decltype(std::declval<T>().operator*)>>::value>*/>
   void takeFrequency(T from, T to);
 
-  int getFrequencyOf(char symbol) const;
+  unsigned int getFrequencyOf(char symbol) const;
   HaffmanTree getTree();
   void reset();
 
 private:
-  std::array<FreqItem, 256> _rawFreqItemBuf;
-  VecFreqItemPtr _freqItemsGot;
+  std::array<unsigned int, 256> _rawFreqItemBuf;
 };
 
-template<typename T>
+template<typename T/*, class InT = typename std::enable_if_t<std::is_same<byte, std::decay_t<decltype(std::declval<T>().operator*)>>::value>*/>
 void FrequencyTable::takeFrequency(T from, T to) {
-  for (auto it = from; it != to; ++it) {
-    FreqItem & freqItem = _rawFreqItemBuf[*it];
-    if (freqItem._freq == 0)
-      _freqItemsGot.push_back(&freqItem);
-    ++freqItem._freq;
-  }
+  for (auto it = from; it != to; ++it)
+    ++_rawFreqItemBuf[*it];
 }
 
 }
