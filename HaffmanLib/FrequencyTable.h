@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+
 #include "HaffmanTree.h"
 
 namespace Haffman
@@ -12,34 +13,29 @@ namespace Haffman
 
 class FrequencyTable {
 public:
-  FrequencyTable() = default;
+  FrequencyTable();
   ~FrequencyTable() = default;
 
   template<typename T>
   void takeFrequency(T from, T to);
 
   int getFrequencyOf(char symbol) const;
-
   HaffmanTree getTree();
   void reset();
 
 private:
-  std::array<LeafNode, 256> _rawLeafBuf;
-  VecLeafNodePtr _symFreqTable;
+  std::array<FreqItem, 256> _rawFreqItemBuf;
+  VecFreqItemPtr _freqItemsGot;
 };
 
 template<typename T>
 void FrequencyTable::takeFrequency(T from, T to) {
   for (auto it = from; it != to; ++it)
   {
-    unsigned char index = *it;
-    LeafNode & leafe = _rawLeafBuf[index];
-    if (leafe.getFreq() == 0)
-    {
-      _symFreqTable.push_back(&leafe);
-      leafe._sym = *it;
-    }
-    leafe.setFreq(leafe.getFreq() + 1);
+    FreqItem & freqItem = _rawFreqItemBuf[*it];
+    if (freqItem._freq == 0)
+      _freqItemsGot.push_back(&freqItem);
+    ++freqItem._freq;
   }
 }
 

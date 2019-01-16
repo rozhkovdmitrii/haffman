@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "HaffmanTree.h"
-
+#include <functional>
 namespace Haffman
 {
 
@@ -29,16 +29,22 @@ void JoinNode::calcFrequency()
   _freq = (_left ? _left->getFreq() : 0) + (_right ? _right->getFreq() : 0);
 }
 
-void JoinNode::setLeft(TreeNode * node)
+bool JoinNode::setLeft(TreeNode * node)
 {
+  if (_left != nullptr)
+    return false;
   _left = node;
   calcFrequency();
+  return true;
 }
 
-void JoinNode::setRight(TreeNode * node)
+bool JoinNode::setRight(TreeNode * node)
 {
+  if (_right != nullptr)
+    return false;
   _right = node;
   calcFrequency();
+  return true;
 }
 
 void JoinNode::setCode(const TreeCode & code)
@@ -66,6 +72,21 @@ std::string JoinNode::toString() const
   ostream << "(" << (_left ? _left->toString() : "NULL") << "-" << (_right ? _right->toString() : "NULL") << ":"
           << _freq << ")";
   return ostream.str();
+}
+
+bool JoinNode::put(TreeNode * node) {
+  if (node == nullptr) {
+    std::cerr << "ERROR: cannot put nullptr node into Haffman Tree" << std::endl;
+    return false;
+  }
+  if (setLeft(node) || setRight(node))
+    return true;
+  std::cerr << "ERROR: cannot put node into full Haffman Tree" << std::endl;
+  return false;
+}
+
+bool JoinNode::isFull() const {
+  return _left != nullptr && _right != nullptr;
 }
 
 TreeNode::Type TreeNode::getType() const
@@ -111,6 +132,8 @@ void TreeNode::setCode(const TreeCode & code)
 
 const TreeCode & TreeNode::getCode() const
 {
+  if (_freq == 0)
+    std::cerr << "ERROR: getting code of non processed in HaffmanTree symbol" << std::endl;
   return _code;
 }
 
@@ -121,8 +144,14 @@ std::string LeafNode::toString() const
   return ostream.str();
 }
 
-HaffmanTree::HaffmanTree(const VecLeafNodePtr & _freqTable) {
-  buildTree(_freqTable);
+HaffmanTree::HaffmanTree(const VecFreqItemPtr & vecFreqItemPtr) {
+
+  VecLeafNodePtr vecLeafNodePtr;
+  for (const auto & freqItemPtr : vecFreqItemPtr) {
+    _rawLeafNodes[freqItemPtr->_sym] = LeafNode({freqItemPtr->_sym, freqItemPtr->_freq});
+    vecLeafNodePtr.push_back(&_rawLeafNodes[freqItemPtr->_sym]);
+  }
+  buildTree(vecLeafNodePtr);
   indexTree();
 }
 
@@ -131,30 +160,33 @@ HaffmanTree::~HaffmanTree() {
     delete _top;
 }
 
-void HaffmanTree::buildTree(const VecLeafNodePtr & _freqTable)
+void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr)
 {
-  std::deque<TreeNode *> deque;
-  for (auto i = 0; i < _freqTable.size(); ++i)
-  {
-    LeafNode * currLeaf = _freqTable[i];
-    if (deque.empty())
-      deque.push_back(currLeaf);
-    else if (currLeaf->getFreq() >= deque.back()->getFreq() )
-      deque.back() =  new JoinNode(currLeaf, deque.back());
-    else
-      deque.push_back(currLeaf);
-  }
+  reset();
 
-  _top = new JoinNode();
-  for (auto i = deque.begin(); i != deque.end(); ++i)
-  {
-    if (!_top->getLeft())
-      _top->setLeft(*i);
-    else if (!_top->getRight())
-      _top->setRight(*i);
-    else
-      _top = new JoinNode(_top, *i);
+  std::vector<TreeNode*> workTable(vecLeafNodePtr.begin(), vecLeafNodePtr.end());
+  auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool { return left->getFreq() > right->getFreq(); };
+  std::priority_queue<TreeNode *, std::vector<TreeNode *>, decltype(cmp)> queue(cmp, workTable);
+
+  JoinNode * join = new JoinNode;
+  while (!queue.empty()) {
+    TreeNode * queueTop = queue.top();
+    if (join->getFreq() > queueTop->getFreq()) {
+      queue.push(join);
+      join = new JoinNode;
+      continue;
+    }
+    queue.pop();
+    if (join->isFull())
+      join = new JoinNode(join, nullptr);
+    join->put(queueTop);
   }
+  _top = join;
+}
+
+
+void HaffmanTree::initLeafNodes(const VecFreqItemPtr & vecFreqItemPtr) {
+
 }
 
 void HaffmanTree::indexTree() {
@@ -181,5 +213,17 @@ std::string HaffmanTree::toString() const {
   return (_top == nullptr) ? "()" : _top->toString();
 }
 
+const TreeCode & HaffmanTree::getCode(char sym) const {
+  return _rawLeafNodes[sym].getCode();
+}
 
+std::ostream & operator<<(std::ostream & os, const TreeCode & treeCode) {
+  int size = treeCode._size;
+  while (size)
+  {
+    --size;
+    os << (bool)(treeCode._base & 1 << size);
+  }
+  return os;
+}
 }

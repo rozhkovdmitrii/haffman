@@ -6,22 +6,22 @@ namespace Haffman
 
 
 int FrequencyTable::getFrequencyOf(char symbol) const {
-  return _rawLeafBuf[symbol].getFreq();
+  return _rawFreqItemBuf[symbol]._freq;
 }
 
 void FrequencyTable::reset() {
-  _symFreqTable.clear();
-  for (auto & leafe : _rawLeafBuf)
-  {
-    leafe = LeafNode();
-  }
+  _freqItemsGot.clear();
+  for (char i = 0; i < _rawFreqItemBuf.size(); ++i)
+    _rawFreqItemBuf[i] = FreqItem({i, 0});
 }
 
 HaffmanTree FrequencyTable::getTree() {
-  std::sort(_symFreqTable.begin(), _symFreqTable.end(),
-            [](const LeafNode * left, const LeafNode * right) -> bool { return left->getFreq() < right->getFreq(); });
-  HaffmanTree tree(_symFreqTable);
+  HaffmanTree tree(_freqItemsGot);
   return tree;
+}
+
+FrequencyTable::FrequencyTable() {
+  reset();
 }
 
 

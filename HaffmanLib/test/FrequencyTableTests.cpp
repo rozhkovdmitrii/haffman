@@ -53,66 +53,64 @@ TEST_F(FrequencyTest, FrequencyTest_Test) {
   const std::string seq2 = "oop beer!";
   _frequencyTable->takeFrequency(seq1.cbegin(), seq1.cend());
   _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
-
   HaffmanTree haffmanTree = _frequencyTable->getTree();
+
   ASSERT_NE(nullptr, haffmanTree.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree.getTop()->getType());
   EXPECT_EQ(15, haffmanTree.getTop()->getFreq());
 
   JoinNode * p0 = dynamic_cast<JoinNode *>(haffmanTree.getTop()->getLeft());
   ASSERT_NE(nullptr, p0);
-
   EXPECT_EQ(TreeNode::Type::Join, p0->getType());
-  EXPECT_EQ(8, p0->getFreq());
-  JoinNode * p00 = dynamic_cast<JoinNode *>(p0->getLeft());
+  EXPECT_EQ(7, p0->getFreq());
+
+  LeafNode * p00 = dynamic_cast<LeafNode *>(p0->getLeft());
   ASSERT_NE(nullptr, p00);
-
-  LeafNode * p000 = dynamic_cast<LeafNode *>(p00->getLeft());
-  ASSERT_NE(nullptr, p000);
-  EXPECT_EQ(TreeNode::Type::Leafe, p000->getType());
-  EXPECT_EQ('p', p000->_sym);
-
-  JoinNode * p001 = dynamic_cast<JoinNode *>(p00->getRight());
-  ASSERT_NE(nullptr, p001);
-  EXPECT_EQ(TreeNode::Type::Join, p001->getType());
-
-  LeafNode * p0010 = dynamic_cast<LeafNode *>(p001->getLeft());
-  ASSERT_NE(nullptr, p0010);
-  EXPECT_EQ(TreeNode::Type::Leafe, p0010->getType());
-  EXPECT_EQ('!', p0010->_sym);
-
-  LeafNode * p0011 = dynamic_cast<LeafNode *>(p001->getRight());
-  ASSERT_NE(nullptr, p0011);
-  EXPECT_EQ(TreeNode::Type::Leafe, p0011->getType());
-  EXPECT_EQ('r', p0011->_sym);
+  EXPECT_EQ(TreeNode::Type::Leafe, p00->getType());
+  EXPECT_EQ('b', p00->_sym);
 
   JoinNode * p01 = dynamic_cast<JoinNode *>(p0->getRight());
   ASSERT_NE(nullptr, p01);
   EXPECT_EQ(TreeNode::Type::Join, p01->getType());
 
-  LeafNode * p010 = dynamic_cast<LeafNode *>(p01->getLeft());
-  ASSERT_NE(nullptr, p010);
-  EXPECT_EQ(TreeNode::Type::Leafe, p010->getType());
-  EXPECT_EQ('o', p010->_sym);
-
   LeafNode * p011 = dynamic_cast<LeafNode *>(p01->getRight());
   ASSERT_NE(nullptr, p011);
   EXPECT_EQ(TreeNode::Type::Leafe, p011->getType());
-  EXPECT_EQ(' ', p011->_sym);
+  EXPECT_EQ('p', p011->_sym);
+
+  JoinNode * p010 = dynamic_cast<JoinNode *>(p01->getLeft());
+  ASSERT_NE(nullptr, p010);
+
+  LeafNode * p0100 = dynamic_cast<LeafNode *>(p010->getLeft());
+  ASSERT_NE(nullptr, p0100);
+  EXPECT_EQ(TreeNode::Type::Leafe, p0100->getType());
+  EXPECT_EQ('!', p0100->_sym);
+
+  LeafNode * p0101 = dynamic_cast<LeafNode *>(p010->getRight());
+  ASSERT_NE(nullptr, p0101);
+  EXPECT_EQ(TreeNode::Type::Leafe, p0101->getType());
+  EXPECT_EQ('r', p0101->_sym);
 
   JoinNode * p1 = dynamic_cast<JoinNode *>(haffmanTree.getTop()->getRight());
   ASSERT_NE(nullptr, p1);
-  EXPECT_EQ(TreeNode::Type::Join, p1->getType());
 
   LeafNode * p10 = dynamic_cast<LeafNode *>(p1->getLeft());
   ASSERT_NE(nullptr, p10);
   EXPECT_EQ(TreeNode::Type::Leafe, p10->getType());
   EXPECT_EQ('e', p10->_sym);
 
-  LeafNode * p11 = dynamic_cast<LeafNode *>(p1->getRight());
+  JoinNode * p11 = dynamic_cast<JoinNode *>(p1->getRight());
   ASSERT_NE(nullptr, p11);
-  EXPECT_EQ(TreeNode::Type::Leafe, p11->getType());
-  EXPECT_EQ('b', p11->_sym);
+  
+  LeafNode * p110 = dynamic_cast<LeafNode *>(p11->getLeft());
+  ASSERT_NE(nullptr, p110);
+  EXPECT_EQ(TreeNode::Type::Leafe, p110->getType());
+  EXPECT_EQ('o', p110->_sym);
+
+  LeafNode * p111 = dynamic_cast<LeafNode *>(p11->getRight());
+  ASSERT_NE(nullptr, p111);
+  EXPECT_EQ(TreeNode::Type::Leafe, p111->getType());
+  EXPECT_EQ(' ', p111->_sym);
 }
 
 TEST_F(FrequencyTest, FrequencyTable_TreeCodeTest_Test) {
@@ -143,20 +141,15 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   _frequencyTable->takeFrequency(seq.cbegin(), seq.cend());
 
   HaffmanTree haffmanTree = _frequencyTable->getTree();
-  std::cout << haffmanTree.toString() << std::endl;
   EXPECT_NE(nullptr, haffmanTree.getTop());
 
   const std::string seq2 = "mama mila ramu";
   auto size = strlen(seq2.c_str());
   _frequencyTable->reset();
   _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
+
   HaffmanTree haffmanTree1 = _frequencyTable->getTree();
-  std::cout << _frequencyTable->getTree().toString() << std::endl;
   ASSERT_NE(nullptr, haffmanTree1.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree1.getTop()->getType());
   EXPECT_EQ(14, haffmanTree1.getTop()->getFreq());
-
-  JoinNode * p0 = dynamic_cast<JoinNode *>(haffmanTree1.getTop()->getLeft());
-  ASSERT_NE(nullptr, p0);
-  EXPECT_EQ(10, p0->getFreq());
 }

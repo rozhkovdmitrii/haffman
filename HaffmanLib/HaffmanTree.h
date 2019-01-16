@@ -1,6 +1,9 @@
 #ifndef HAFFMAN_HAFFMANTREE_H
 #define HAFFMAN_HAFFMANTREE_H
 
+#include <array>
+#include "CommonTypes.h"
+
 namespace Haffman
 {
 
@@ -13,6 +16,8 @@ struct TreeCode
   TreeCode getCodeToTheLeft();
   TreeCode getCodeToTheRight();
 };
+
+std::ostream & operator<<(std::ostream& os, const TreeCode & treeCode);
 
 class TreeNode
 {
@@ -34,10 +39,10 @@ public:
   const TreeCode & getCode() const;
 
 protected:
-  TreeNode(Type type, int freq) : _type(type), _freq(freq) {}
+  TreeNode(Type type, long freq) : _type(type), _freq(freq) {}
   TreeNode(Type type) : TreeNode(type, 0) {}
 
-  int _freq = 0;
+  long _freq = 0;
   Type _type;
   TreeCode _code;
 };
@@ -46,16 +51,11 @@ class LeafNode : public TreeNode
 {
 public:
   virtual ~LeafNode() override {}
-  LeafNode(char sym, int freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
+  LeafNode(char sym, long freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
   LeafNode() : LeafNode(0, 0) {}
-
-  bool operator<(const LeafNode & right)
-  {
-    return _freq < right._freq;
-  };
+  virtual std::string toString() const override;
 
   char _sym = 0;
-  virtual std::string toString() const override;
 };
 typedef std::vector<LeafNode *> VecLeafNodePtr;
 
@@ -66,11 +66,12 @@ public:
   JoinNode(TreeNode * left, TreeNode * right);
   virtual ~JoinNode() override;
 
-  void setLeft(TreeNode * node);
+  bool put(TreeNode * node);
+  bool setLeft(TreeNode * node);
   TreeNode * getLeft() const;
-  void setRight(TreeNode * node);
+  bool setRight(TreeNode * node);
   TreeNode * getRight() const;
-
+  bool isFull() const;
   void calcFrequency();
 
   void setCode(const TreeCode & code) override;
@@ -84,16 +85,19 @@ private:
 class HaffmanTree
 {
 public:
-  explicit HaffmanTree(const VecLeafNodePtr & _freqTable);
+  explicit HaffmanTree(const VecFreqItemPtr & vecFreqItemPtr);
   ~HaffmanTree();
   JoinNode * getTop() const;
   std::string toString() const;
+  const TreeCode & getCode(char sym) const;
 
 private:
-  void buildTree(const VecLeafNodePtr & _freqTable);
+  void initLeafNodes(const VecFreqItemPtr & freqItemPtr);
+  void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
   void indexTree();
   void reset();
 
+  std::array<LeafNode, 256> _rawLeafNodes;
   JoinNode * _top = nullptr;
 };
 
