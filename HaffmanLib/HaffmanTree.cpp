@@ -1,10 +1,11 @@
+#include <iostream>
 #include <sstream>
+#include <vector>
 #include <queue>
 #include <algorithm>
-#include <vector>
-#include <iostream>
+
 #include "HaffmanTree.h"
-#include <functional>
+
 namespace Haffman
 {
 
@@ -104,8 +105,10 @@ void TreeNode::setFreq(int freq)
   _freq = freq;
 }
 
-TreeCode TreeCode::getCodeToTheRight()
-{
+TreeCode::TreeCode(byte base, int size) : _base(base), _size(size) {}
+TreeCode::TreeCode(const TreeCode & code) : TreeCode(code._base, code._size) {}
+
+TreeCode TreeCode::getCodeToTheRight() const {
   TreeCode codeToTheRight(*this);
   codeToTheRight._base <<= 1;
   codeToTheRight._base |= 1;
@@ -113,42 +116,39 @@ TreeCode TreeCode::getCodeToTheRight()
   return codeToTheRight;
 }
 
-TreeCode TreeCode::getCodeToTheLeft()
-{
+TreeCode TreeCode::getCodeToTheLeft() const {
   TreeCode codeToTheLeft(*this);
   codeToTheLeft._base <<= 1;
   ++codeToTheLeft._size;
   return codeToTheLeft;
 }
 
-TreeCode::TreeCode(const TreeCode & code) : _base(code._base), _size(code._size)
-{
+bool TreeCode::operator==(const TreeCode & right) const {
+  return _size == right._size && _base == right._base;
 }
 
-void TreeNode::setCode(const TreeCode & code)
-{
+void TreeNode::setCode(const TreeCode & code) {
   _code = code;
 }
 
-const TreeCode & TreeNode::getCode() const
-{
-  if (_freq == 0)
-    std::cerr << "ERROR: getting code of non processed in HaffmanTree symbol" << std::endl;
-  return _code;
-}
-
-std::string LeafNode::toString() const
-{
+std::string LeafNode::toString() const {
   std::ostringstream ostream;
   ostream << "(" << _sym << _freq << ")";
   return ostream.str();
 }
 
+const TreeCode & LeafNode::getCode() const {
+  if (_freq == 0)
+    std::cerr << "ERROR: getting code of non processed in HaffmanTree symbol: '" << _sym << "'" << std::endl;
+  return _code;
+}
+
 HaffmanTree::HaffmanTree(const VecFreqItemPtr & vecFreqItemPtr) {
 
+  for (int i = 0; i < _rawLeafNodes.size(); ++i) _rawLeafNodes[i]._sym = (byte) i;
   VecLeafNodePtr vecLeafNodePtr;
   for (const auto & freqItemPtr : vecFreqItemPtr) {
-    _rawLeafNodes[freqItemPtr->_sym] = LeafNode({freqItemPtr->_sym, freqItemPtr->_freq});
+    _rawLeafNodes[freqItemPtr->_sym].setFreq(freqItemPtr->_freq);
     vecLeafNodePtr.push_back(&_rawLeafNodes[freqItemPtr->_sym]);
   }
   buildTree(vecLeafNodePtr);
@@ -160,8 +160,7 @@ HaffmanTree::~HaffmanTree() {
     delete _top;
 }
 
-void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr)
-{
+void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr) {
   reset();
 
   std::vector<TreeNode*> workTable(vecLeafNodePtr.begin(), vecLeafNodePtr.end());
@@ -182,11 +181,6 @@ void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr)
     join->put(queueTop);
   }
   _top = join;
-}
-
-
-void HaffmanTree::initLeafNodes(const VecFreqItemPtr & vecFreqItemPtr) {
-
 }
 
 void HaffmanTree::indexTree() {

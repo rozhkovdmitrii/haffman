@@ -4,7 +4,6 @@
 namespace Haffman
 {
 
-
 int FrequencyTable::getFrequencyOf(char symbol) const {
   return _rawFreqItemBuf[symbol]._freq;
 }
@@ -23,6 +22,5 @@ HaffmanTree FrequencyTable::getTree() {
 FrequencyTable::FrequencyTable() {
   reset();
 }
-
 
 }

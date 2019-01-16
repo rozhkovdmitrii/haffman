@@ -4,8 +4,7 @@
 
 using namespace Haffman;
 
-class FrequencyTest : public testing::Test
-{
+class FrequencyTest : public testing::Test {
 protected:
   virtual void SetUp() {
     _frequencyTable = new Haffman::FrequencyTable;
@@ -143,6 +142,13 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   HaffmanTree haffmanTree = _frequencyTable->getTree();
   EXPECT_NE(nullptr, haffmanTree.getTop());
 
+  EXPECT_EQ(TreeCode({0, 0}), haffmanTree.getCode('z'));
+  EXPECT_EQ(TreeCode({0, 2}), haffmanTree.getCode('b'));
+  EXPECT_EQ(TreeCode({2, 2}), haffmanTree.getCode('e'));
+  EXPECT_EQ(TreeCode({3, 3}), haffmanTree.getCode('p'));
+  EXPECT_EQ(TreeCode({6, 3}), haffmanTree.getCode('o'));
+  EXPECT_EQ(TreeCode({7, 3}), haffmanTree.getCode(' '));
+
   const std::string seq2 = "mama mila ramu";
   auto size = strlen(seq2.c_str());
   _frequencyTable->reset();
@@ -152,4 +158,5 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   ASSERT_NE(nullptr, haffmanTree1.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree1.getTop()->getType());
   EXPECT_EQ(14, haffmanTree1.getTop()->getFreq());
+
 }

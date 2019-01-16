@@ -8,8 +8,7 @@
 
 #include "HaffmanTree.h"
 
-namespace Haffman
-{
+namespace Haffman {
 
 class FrequencyTable {
 public:
@@ -30,8 +29,7 @@ private:
 
 template<typename T>
 void FrequencyTable::takeFrequency(T from, T to) {
-  for (auto it = from; it != to; ++it)
-  {
+  for (auto it = from; it != to; ++it) {
     FreqItem & freqItem = _rawFreqItemBuf[*it];
     if (freqItem._freq == 0)
       _freqItemsGot.push_back(&freqItem);

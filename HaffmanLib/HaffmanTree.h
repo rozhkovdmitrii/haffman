@@ -9,12 +9,14 @@ namespace Haffman
 
 struct TreeCode
 {
-  char _base = 0;
+  byte _base = 0;
   int _size = 0;
   TreeCode() = default;
+  TreeCode(byte base, int size);
   TreeCode(const TreeCode &);
-  TreeCode getCodeToTheLeft();
-  TreeCode getCodeToTheRight();
+  TreeCode getCodeToTheLeft() const;
+  TreeCode getCodeToTheRight() const;
+  bool operator==(const TreeCode & right) const;
 };
 
 std::ostream & operator<<(std::ostream& os, const TreeCode & treeCode);
@@ -36,7 +38,6 @@ public:
 
   virtual void setCode(const TreeCode & code);
   virtual std::string toString() const = 0;
-  const TreeCode & getCode() const;
 
 protected:
   TreeNode(Type type, long freq) : _type(type), _freq(freq) {}
@@ -54,6 +55,7 @@ public:
   LeafNode(char sym, long freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
   LeafNode() : LeafNode(0, 0) {}
   virtual std::string toString() const override;
+  const TreeCode & getCode() const;
 
   char _sym = 0;
 };
@@ -92,7 +94,6 @@ public:
   const TreeCode & getCode(char sym) const;
 
 private:
-  void initLeafNodes(const VecFreqItemPtr & freqItemPtr);
   void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
   void indexTree();
   void reset();
