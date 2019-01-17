@@ -3,7 +3,7 @@
 
 using namespace Haffman;
 
-class FrequencyTest : public testing::Test {
+class EncodingTests : public testing::Test {
 protected:
   virtual void SetUp() {
   };
@@ -15,7 +15,7 @@ protected:
   Haffman::HaffmanEncoder _encoder;
 };
 
-TEST_F(FrequencyTest, FrequencyTest_TestReadingSimple_Test) {
+TEST_F(EncodingTests, EncodingTests_TestReadingSimple_Test) {
   const std::string seq = "beep boop beer!";
   _frequencyTable.takeFrequency((byte *) seq.data(), ((byte *) seq.data()) + seq.size());
   EXPECT_EQ(4, _frequencyTable.getFrequencyOf('e'));
@@ -27,19 +27,19 @@ TEST_F(FrequencyTest, FrequencyTest_TestReadingSimple_Test) {
   EXPECT_EQ(2, _frequencyTable.getFrequencyOf('o'));
 }
 
-TEST_F(FrequencyTest, SymFreqInitTest) {
+TEST_F(EncodingTests, SymFreqInitTest) {
   Haffman::LeafNode sf;
   EXPECT_EQ(0, sf.getFreq());
   EXPECT_EQ(0, sf.getFreq());
 }
 
-TEST_F(FrequencyTest, TreeCodeInitTest) {
+TEST_F(EncodingTests, TreeCodeInitTest) {
   TreeCode treeCode;
   EXPECT_EQ(0, treeCode._base);
   EXPECT_EQ(0, treeCode._size);
 }
 
-TEST_F(FrequencyTest, SymFreqLessTest) {
+TEST_F(EncodingTests, SymFreqLessTest) {
   std::vector<Haffman::LeafNode> vec = {{'d', 5}, {'c', 1}, {'b', 1}};
   std::sort(vec.begin(), vec.end(),
             [](const Haffman::LeafNode & left, const Haffman::LeafNode & right) -> bool {
@@ -50,9 +50,9 @@ TEST_F(FrequencyTest, SymFreqLessTest) {
   EXPECT_EQ('b', vec[2]._sym);
 }
 
-TEST_F(FrequencyTest, EmptyDataTest) {}
+TEST_F(EncodingTests, EmptyDataTest) {}
 
-TEST_F(FrequencyTest, FrequencyTest_Test) {
+TEST_F(EncodingTests, EncodingTests_Test) {
   const std::string seq1 = "beep b";
   const std::string seq2 = "oop beer!";
   _frequencyTable.takeFrequency(seq1.cbegin(), seq1.cend());
@@ -117,7 +117,7 @@ TEST_F(FrequencyTest, FrequencyTest_Test) {
   EXPECT_EQ(' ', p110->_sym);
 }
 
-TEST_F(FrequencyTest, FrequencyTable_TreeCodeTest_Test) {
+TEST_F(EncodingTests, FrequencyTable_TreeCodeTest_Test) {
   TreeCode base;
   TreeCode p0 = base.getCodeToTheLeft();
   EXPECT_EQ(0, p0._base);
@@ -140,7 +140,7 @@ TEST_F(FrequencyTest, FrequencyTable_TreeCodeTest_Test) {
   EXPECT_EQ(6, p001100._size);
 }
 
-TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
+TEST_F(EncodingTests, EncodingTests_TreeReadingPossibleAfterReseting_Test) {
   const std::string seq = "beep boop beer!";
   _frequencyTable.takeFrequency(seq.cbegin(), seq.cend());
 
@@ -166,7 +166,7 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
 
 }
 
-TEST_F(FrequencyTest, EncodeFreqItemTest)
+TEST_F(EncodingTests, EncodeFreqItemTest)
 {
   FreqItem eItem({'e', 0xFF000000});
   FreqItem fItem({'f', 0x01000000});
@@ -181,7 +181,7 @@ TEST_F(FrequencyTest, EncodeFreqItemTest)
 }
 
 
-TEST_F(FrequencyTest, EncodingTreeCodesTest)
+TEST_F(EncodingTests, EncodingTreeCodesTest)
 {
   std::string str = "beep boop beer!";
   _encoder.prepareToEncode(str.begin(), str.end());
@@ -286,7 +286,7 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
   EXPECT_EQ(buffer, expected);
 }
 
-TEST_F(FrequencyTest, TestEncoding)
+TEST_F(EncodingTests, TestEncoding)
 {
   VecByte expected = {
     0x07,                         //size of frequency pack

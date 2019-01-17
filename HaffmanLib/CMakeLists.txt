@@ -7,7 +7,8 @@ add_library(haffmanLib
   HaffmanEncoder.h
   HaffmanDecoder.cpp
   HaffmanDecoder.h
-  CommonTypes.h)
+  CommonTypes.h
+)
 
 target_include_directories(haffmanLib PRIVATE .)
 

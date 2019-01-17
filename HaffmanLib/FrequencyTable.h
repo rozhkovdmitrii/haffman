@@ -19,7 +19,8 @@ public:
   void takeFrequency(T from, T to);
 
   VecFreqItem getFreqPack() const;
-  uint getFrequencyOf(byte symbol) const;
+  uint getFrequencyOf(byte symb) const;
+  void setFrequencyOf(byte symb, uint freq);
   HaffmanTree getHaffmanTree() const;
   void reset();
 

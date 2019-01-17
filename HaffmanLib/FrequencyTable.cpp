@@ -4,13 +4,16 @@
 namespace Haffman
 {
 
-unsigned int FrequencyTable::getFrequencyOf(byte symbol) const {
-  return _rawFreqBuf[symbol];
+unsigned int FrequencyTable::getFrequencyOf(byte symb) const {
+  return _rawFreqBuf[symb];
 }
 
 FrequencyTable::FrequencyTable() {
-
   reset();
+}
+
+void FrequencyTable::reset() {
+  std::fill(_rawFreqBuf.begin(), _rawFreqBuf.end(), 0);
 }
 
 HaffmanTree FrequencyTable::getHaffmanTree() const {
@@ -19,10 +22,6 @@ HaffmanTree FrequencyTable::getHaffmanTree() const {
     if (_rawFreqBuf[i] != 0) vecFreqItem.emplace_back((byte)i, _rawFreqBuf[i]);
   HaffmanTree tree(vecFreqItem);
   return tree;
-}
-
-void FrequencyTable::reset() {
-  std::fill(_rawFreqBuf.begin(), _rawFreqBuf.end(), 0);
 }
 
 VecFreqItem FrequencyTable::getFreqPack() const { //TODO: optimize
@@ -35,6 +34,10 @@ VecFreqItem FrequencyTable::getFreqPack() const { //TODO: optimize
     vecFreqItem.emplace_back((byte)i, freq);
   }
   return vecFreqItem;
+}
+
+void FrequencyTable::setFrequencyOf(byte symb, uint freq) {
+  _rawFreqBuf[symb] = freq;
 }
 
 }
