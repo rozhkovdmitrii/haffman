@@ -12,6 +12,7 @@ protected:
   };
 
   Haffman::FrequencyTable _frequencyTable;
+  Haffman::HaffmanEncoder _encoder;
 };
 
 TEST_F(FrequencyTest, FrequencyTest_TestReadingSimple_Test) {
@@ -169,25 +170,23 @@ TEST_F(FrequencyTest, EncodeFreqItemTest)
 {
   FreqItem eItem({'e', 0xFF000000});
   FreqItem fItem({'f', 0x01000000});
-  HaffmanEncoder encoder;
   VecByte expected = {
     0x65, 0x00, 0x00, 0x00, 0xFF
   };
   VecByte fbuffer, ebuffer;
 
-  encoder.encode(fItem, fbuffer);
-  encoder.encode(eItem, ebuffer);
+  _encoder.encode(fItem, fbuffer);
+  _encoder.encode(eItem, ebuffer);
   EXPECT_EQ(expected, ebuffer);
 }
 
 
 TEST_F(FrequencyTest, EncodingTreeCodesTest)
 {
-  HaffmanEncoder encoder;
   std::string str = "beep boop beer!";
-  encoder.prepareToEncode(str.begin(), str.end());
+  _encoder.prepareToEncode(str.begin(), str.end());
 
-  const HaffmanTree & haffmanTree = encoder.getHaffmanTree();
+  const HaffmanTree & haffmanTree = _encoder.getHaffmanTree();
 
   const TreeCode & space = haffmanTree.getCode(' ');
   const TreeCode & b = haffmanTree.getCode('b');
@@ -283,9 +282,8 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
     0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
   };
   VecByte buffer;
-  ASSERT_TRUE(encoder.encodePayload(str.begin(), str.end(), buffer));
+  ASSERT_TRUE(_encoder.encodePayload(str.begin(), str.end(), buffer));
   EXPECT_EQ(buffer, expected);
-
 }
 
 TEST_F(FrequencyTest, TestEncoding)
@@ -325,5 +323,4 @@ TEST_F(FrequencyTest, TestEncoding)
   ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
   ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
   EXPECT_EQ(expectedTwoEmpty, buffer);
-
 }
