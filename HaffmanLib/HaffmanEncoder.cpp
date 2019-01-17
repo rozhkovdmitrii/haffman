@@ -8,6 +8,7 @@ bool HaffmanEncoder::encode(const VecFreqItem & vecFreqItem, VecByte & buffer) {
   write(size, buffer);
   for (const FreqItem & freqItem : vecFreqItem)
     encode(freqItem, buffer);
+  return true;
 }
 
 bool HaffmanEncoder::encode(const FreqItem & freqItem, VecByte & buffer) {
@@ -57,11 +58,7 @@ bool HaffmanEncoder::encode(const VecTreeCode & vecTreeCode, VecByte & buffer) {
 }
 
 bool HaffmanEncoder::encodeHeader(const FrequencyTable & freqTable, VecByte & buffer) {
-  if (!buffer.empty()) {
-    std::cerr << "ERROR: Encode FrequencyTable: buffer should be empty." << std::endl;
-    return false;
-  }
-  encode(freqTable.getFreqPack(), buffer);
+  return encode(freqTable.getFreqPack(), buffer);
 }
 
 bool TreeCodeBuff::emplace(const TreeCode & treeCode, byte & toBeWrote) {

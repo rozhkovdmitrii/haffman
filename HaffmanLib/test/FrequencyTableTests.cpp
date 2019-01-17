@@ -12,7 +12,8 @@ protected:
   };
 
   virtual void TearDown() {
-    if (_frequencyTable != nullptr) delete _frequencyTable;
+    if (_frequencyTable != nullptr)
+      delete _frequencyTable;
   };
 
   Haffman::FrequencyTable * _frequencyTable;
@@ -202,8 +203,6 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
   const TreeCode & o = haffmanTree.getCode('o');
   const TreeCode & r = haffmanTree.getCode('r');
 
-
-
   TreeCodeBuff treeCodeBuff;
 
   byte toBeWrote = 0;
@@ -296,10 +295,9 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
 
 }
 
-
 TEST_F(FrequencyTest, TestEncoding)
 {
-  VecByte expectedHeader = {
+  VecByte expected = {
     0x07,                         //size of frequency pack
     ' ', 0x02, 0x00, 0x00, 0x00,
     '!', 0x01, 0x00, 0x00, 0x00,
@@ -315,11 +313,7 @@ TEST_F(FrequencyTest, TestEncoding)
 
   HaffmanEncoder encoder;
   std::string seq("beep boop beer!");
-
-  _frequencyTable->takeFrequency(seq.begin(), seq.end());
-
   VecByte buffer;
-  encoder.encodeHeader(*_frequencyTable, buffer);
-  encoder.encodePayload(_frequencyTable->getHaffmanTree(), seq.begin(), seq.end(), buffer);
-  EXPECT_EQ(expectedHeader, buffer);
+  ASSERT_TRUE(encoder.encodeBlock(seq.begin(), seq.end(), buffer));
+  EXPECT_EQ(expected, buffer);
 }

@@ -216,6 +216,21 @@ const TreeCode & HaffmanTree::getCode(byte sym) const {
   return _rawLeafNodes[sym].getCode();
 }
 
+HaffmanTree::HaffmanTree() : _top(nullptr) {}
+
+HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) {
+  _top = haffmanTree._top;
+  haffmanTree._top = nullptr;
+  std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
+}
+
+HaffmanTree & HaffmanTree::operator=(HaffmanTree && haffmanTree) noexcept {
+  _top = haffmanTree._top;
+  haffmanTree._top = nullptr;
+  std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
+  return *this;
+}
+
 std::ostream & operator<<(std::ostream & os, const TreeCode & treeCode) {
   int size = treeCode._size;
   while (size)

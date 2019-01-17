@@ -89,7 +89,12 @@ private:
 class HaffmanTree
 {
 public:
+  HaffmanTree();
   explicit HaffmanTree(const VecFreqItem & vecFreqItem);
+  HaffmanTree(HaffmanTree && haffmanTree);
+  HaffmanTree & operator=(HaffmanTree && haffmanTree) noexcept ;
+  HaffmanTree(const HaffmanTree &) = delete;
+  HaffmanTree & operator=(const  HaffmanTree &) = delete;
 
   ~HaffmanTree();
   JoinNode * getTop() const;
