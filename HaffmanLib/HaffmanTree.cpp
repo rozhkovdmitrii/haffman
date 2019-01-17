@@ -138,8 +138,6 @@ std::string LeafNode::toString() const {
 }
 
 const TreeCode & LeafNode::getCode() const {
-  if (_freq == 0)
-    std::cerr << "ERROR: getting code of non processed in HaffmanTree symbol: '" << _sym << "'" << std::endl;
   return _code;
 }
 
@@ -218,13 +216,16 @@ const TreeCode & HaffmanTree::getCode(byte sym) const {
 
 HaffmanTree::HaffmanTree() : _top(nullptr) {}
 
+#include <algorithm>
 HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) {
+  reset();
   _top = haffmanTree._top;
   haffmanTree._top = nullptr;
   std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
 }
 
 HaffmanTree & HaffmanTree::operator=(HaffmanTree && haffmanTree) noexcept {
+  reset();
   _top = haffmanTree._top;
   haffmanTree._top = nullptr;
   std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());

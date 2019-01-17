@@ -33,14 +33,17 @@ public:
   HaffmanEncoder() = default;
 
   template <typename T>
+  void prepareToEncode(T begin, T end);
+  const HaffmanTree & getHaffmanTree() const;
+
+  template <typename T>
   bool encodeBlock(T begin, T end, VecByte & buffer);
   bool encodeHeader(const FrequencyTable & freqTable, VecByte & buffer);
   template <typename T>
+
   bool encodePayload(T begin, T end, VecByte & buffer);
   bool encode(const VecFreqItem &, VecByte & buffer);
-
   bool encode(const FreqItem &, VecByte & buffer);
-  bool encode(const VecTreeCode &, VecByte & buffer);
   bool encode(const TreeCode & treeCode, VecByte & buffer);
 
   template <typename T>
@@ -51,16 +54,11 @@ private:
   HaffmanTree _haffmanTree;
   TreeCodeBuff _writeCodeState;
   uint _wroteSize = 0;
-
-  enum {
-    ReadByCount = 3
-  };
 };
 
 template<typename T>
 bool HaffmanEncoder::encodeBlock(T begin, T end, VecByte & buffer) {
-  _freqTable.takeFrequency(begin, end);
-  _haffmanTree = _freqTable.getHaffmanTree();
+  prepareToEncode(begin, end);
 
   if (!encodeHeader(_freqTable, buffer))
     return false;
@@ -72,12 +70,26 @@ bool HaffmanEncoder::encodeBlock(T begin, T end, VecByte & buffer) {
 }
 
 template <typename T>
+void HaffmanEncoder::prepareToEncode(T begin, T end) {
+  _freqTable.reset();
+  _freqTable.takeFrequency(begin, end);
+  _haffmanTree = _freqTable.getHaffmanTree();
+}
+
+template <typename T>
 bool HaffmanEncoder::encodePayload(T begin, T end, VecByte & buffer) {
   uint baseBuffSize = buffer.size();
   write((uint)0, buffer); //write size
   write((byte)0, buffer); //write padding
-  for (auto i = begin; i != end; ++i)
-    encode(_haffmanTree.getCode(*i), buffer);
+
+  for (auto i = begin; i != end; ++i) {
+    const TreeCode & code = _haffmanTree.getCode(*i);
+    if (code._size == 0) {
+      std::cerr << "ERROR: encoding not processed in HaffmanTree value: '" << *i << "'" << std::endl;
+      return false;
+    }
+    encode(code, buffer);
+  }
 
   if (!_writeCodeState.isEmpty())
     write(_writeCodeState._buffer, buffer);
@@ -92,6 +104,7 @@ bool HaffmanEncoder::encodePayload(T begin, T end, VecByte & buffer) {
   *reinterpret_cast<byte*>(&buffer[baseBuffSize + 4]) = _writeCodeState.getPaddingSize();
   return true;
 }
+
 }
 
 #endif //HAFFMAN_HAFFMANENCODER_H

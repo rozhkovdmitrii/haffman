@@ -1,6 +1,4 @@
-#include <cmath>
 #include "gtest/gtest.h"
-#include "FrequencyTable.h"
 #include "HaffmanEncoder.h"
 
 using namespace Haffman;
@@ -54,9 +52,7 @@ TEST_F(FrequencyTest, SymFreqLessTest) {
   EXPECT_EQ('b', vec[2]._sym);
 }
 
-TEST_F(FrequencyTest, EmptyDataTest) {
-
-}
+TEST_F(FrequencyTest, EmptyDataTest) {}
 
 TEST_F(FrequencyTest, FrequencyTest_Test) {
   const std::string seq1 = "beep b";
@@ -190,10 +186,11 @@ TEST_F(FrequencyTest, EncodeFreqItemTest)
 
 TEST_F(FrequencyTest, EncodingTreeCodesTest)
 {
-  FrequencyTable tbl;
+  HaffmanEncoder encoder;
   std::string str = "beep boop beer!";
-  tbl.takeFrequency(str.begin(), str.end());
-  HaffmanTree haffmanTree = tbl.getHaffmanTree();
+  encoder.prepareToEncode(str.begin(), str.end());
+
+  const HaffmanTree & haffmanTree = encoder.getHaffmanTree();
 
   const TreeCode & space = haffmanTree.getCode(' ');
   const TreeCode & b = haffmanTree.getCode('b');
@@ -282,7 +279,6 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
   toBeWrote = 0;
 
   VecTreeCode vecTreeCode { b, e, e, p, space,  b, o, o, p, space, b, e, e, r, shout };
-  HaffmanEncoder encoder;
 
   VecByte expected {
     0x0A, 0x00, 0x00, 0x00,        // size
@@ -290,7 +286,7 @@ TEST_F(FrequencyTest, EncodingTreeCodesTest)
     0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
   };
   VecByte buffer;
-  encoder.encode(vecTreeCode, buffer);
+  ASSERT_TRUE(encoder.encodePayload(str.begin(), str.end(), buffer));
   EXPECT_EQ(buffer, expected);
 
 }
@@ -316,4 +312,16 @@ TEST_F(FrequencyTest, TestEncoding)
   VecByte buffer;
   ASSERT_TRUE(encoder.encodeBlock(seq.begin(), seq.end(), buffer));
   EXPECT_EQ(expected, buffer);
+
+  VecByte expectedEmpty = {
+    0x00,
+
+    0x05, 0x00, 0x00, 0x00,
+    0x00
+  };
+  buffer.clear();
+  std::string empty;
+  ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
+  EXPECT_EQ(expectedEmpty, buffer);
+
 }

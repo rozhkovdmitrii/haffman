@@ -32,33 +32,12 @@ bool HaffmanEncoder::encode(const TreeCode & treeCode, VecByte & buffer) {
 }
 
 
-bool HaffmanEncoder::encode(const VecTreeCode & vecTreeCode, VecByte & buffer) {
-
-  if (!buffer.empty())
-  {
-    std::cerr << "ERROR: Encode TreeCode vector: buffer should be empty." << std::endl;
-    return false;
-  }
-  uint baseBuffSize = buffer.size();
-  write((uint)0, buffer); //write size
-  write((byte)0, buffer); //write padding
-  for (const TreeCode & treeCode : vecTreeCode)
-    encode(treeCode, buffer);
-
-  if (!_writeCodeState.isEmpty())
-    write(_writeCodeState._buffer, buffer);
-
-  if (buffer.size() < 5)
-  {
-    std::cerr << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes" << std::endl;
-    return false;
-  }
-  *reinterpret_cast<uint*>(&buffer[baseBuffSize + 0]) = _wroteSize;
-  *reinterpret_cast<byte*>(&buffer[baseBuffSize + 4]) = _writeCodeState.getPaddingSize();
-}
-
 bool HaffmanEncoder::encodeHeader(const FrequencyTable & freqTable, VecByte & buffer) {
   return encode(freqTable.getFreqPack(), buffer);
+}
+
+const HaffmanTree & HaffmanEncoder::getHaffmanTree() const {
+  return _haffmanTree;
 }
 
 bool TreeCodeBuff::emplace(const TreeCode & treeCode, byte & toBeWrote) {
@@ -81,5 +60,7 @@ bool TreeCodeBuff::emplace(const TreeCode & treeCode, byte & toBeWrote) {
 byte TreeCodeBuff::getPaddingSize() const {
   return _bufferedCount == 0 ? 0 : DigitCount - _bufferedCount;
 }
+
+
 
 }
