@@ -104,7 +104,7 @@ public:
 private:
   void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
   void indexTree();
-  void reset();
+  void resetTop();
 
   std::array<LeafNode, 256> _rawLeafNodes;
   JoinNode * _top = nullptr;

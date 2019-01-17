@@ -95,8 +95,7 @@ bool HaffmanEncoder::encodePayload(T begin, T end, VecByte & buffer) {
     write(_writeCodeState._buffer, buffer);
 
   uint wroteSize =  buffer.size() - baseBuffSize;
-  if (wroteSize < 5)
-  {
+  if (wroteSize < 5) {
     std::cerr << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes" << std::endl;
     return false;
   }

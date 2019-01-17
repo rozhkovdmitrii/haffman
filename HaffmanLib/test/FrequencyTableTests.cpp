@@ -6,27 +6,24 @@ using namespace Haffman;
 class FrequencyTest : public testing::Test {
 protected:
   virtual void SetUp() {
-    _frequencyTable = new Haffman::FrequencyTable;
   };
 
   virtual void TearDown() {
-    if (_frequencyTable != nullptr)
-      delete _frequencyTable;
   };
 
-  Haffman::FrequencyTable * _frequencyTable;
+  Haffman::FrequencyTable _frequencyTable;
 };
 
 TEST_F(FrequencyTest, FrequencyTest_TestReadingSimple_Test) {
   const std::string seq = "beep boop beer!";
-  _frequencyTable->takeFrequency((byte *) seq.data(), ((byte *) seq.data()) + seq.size());
-  EXPECT_EQ(4, _frequencyTable->getFrequencyOf('e'));
-  EXPECT_EQ(3, _frequencyTable->getFrequencyOf('b'));
-  EXPECT_EQ(2, _frequencyTable->getFrequencyOf('p'));
-  EXPECT_EQ(2, _frequencyTable->getFrequencyOf(' '));
-  EXPECT_EQ(1, _frequencyTable->getFrequencyOf('r'));
-  EXPECT_EQ(1, _frequencyTable->getFrequencyOf('!'));
-  EXPECT_EQ(2, _frequencyTable->getFrequencyOf('o'));
+  _frequencyTable.takeFrequency((byte *) seq.data(), ((byte *) seq.data()) + seq.size());
+  EXPECT_EQ(4, _frequencyTable.getFrequencyOf('e'));
+  EXPECT_EQ(3, _frequencyTable.getFrequencyOf('b'));
+  EXPECT_EQ(2, _frequencyTable.getFrequencyOf('p'));
+  EXPECT_EQ(2, _frequencyTable.getFrequencyOf(' '));
+  EXPECT_EQ(1, _frequencyTable.getFrequencyOf('r'));
+  EXPECT_EQ(1, _frequencyTable.getFrequencyOf('!'));
+  EXPECT_EQ(2, _frequencyTable.getFrequencyOf('o'));
 }
 
 TEST_F(FrequencyTest, SymFreqInitTest) {
@@ -57,9 +54,9 @@ TEST_F(FrequencyTest, EmptyDataTest) {}
 TEST_F(FrequencyTest, FrequencyTest_Test) {
   const std::string seq1 = "beep b";
   const std::string seq2 = "oop beer!";
-  _frequencyTable->takeFrequency(seq1.cbegin(), seq1.cend());
-  _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
-  HaffmanTree haffmanTree = _frequencyTable->getHaffmanTree();
+  _frequencyTable.takeFrequency(seq1.cbegin(), seq1.cend());
+  _frequencyTable.takeFrequency(seq2.cbegin(), seq2.cend());
+  HaffmanTree haffmanTree = _frequencyTable.getHaffmanTree();
 
   ASSERT_NE(nullptr, haffmanTree.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree.getTop()->getType());
@@ -144,9 +141,9 @@ TEST_F(FrequencyTest, FrequencyTable_TreeCodeTest_Test) {
 
 TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
   const std::string seq = "beep boop beer!";
-  _frequencyTable->takeFrequency(seq.cbegin(), seq.cend());
+  _frequencyTable.takeFrequency(seq.cbegin(), seq.cend());
 
-  HaffmanTree haffmanTree = _frequencyTable->getHaffmanTree();
+  HaffmanTree haffmanTree = _frequencyTable.getHaffmanTree();
   EXPECT_NE(nullptr, haffmanTree.getTop());
 
   EXPECT_EQ(TreeCode({0, 0}), haffmanTree.getCode('z'));
@@ -158,10 +155,10 @@ TEST_F(FrequencyTest, FrequencyTest_TreeReadingPossibleAfterReseting_Test) {
 
   const std::string seq2 = "mama mila ramu";
   auto size = strlen(seq2.c_str());
-  _frequencyTable->reset();
-  _frequencyTable->takeFrequency(seq2.cbegin(), seq2.cend());
+  _frequencyTable.reset();
+  _frequencyTable.takeFrequency(seq2.cbegin(), seq2.cend());
 
-  HaffmanTree haffmanTree1 = _frequencyTable->getHaffmanTree();
+  HaffmanTree haffmanTree1 = _frequencyTable.getHaffmanTree();
   ASSERT_NE(nullptr, haffmanTree1.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree1.getTop()->getType());
   EXPECT_EQ(14, haffmanTree1.getTop()->getFreq());
@@ -313,7 +310,11 @@ TEST_F(FrequencyTest, TestEncoding)
   ASSERT_TRUE(encoder.encodeBlock(seq.begin(), seq.end(), buffer));
   EXPECT_EQ(expected, buffer);
 
-  VecByte expectedEmpty = {
+  VecByte expectedTwoEmpty = {
+    0x00,
+
+    0x05, 0x00, 0x00, 0x00,
+    0x00,
     0x00,
 
     0x05, 0x00, 0x00, 0x00,
@@ -322,6 +323,7 @@ TEST_F(FrequencyTest, TestEncoding)
   buffer.clear();
   std::string empty;
   ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
-  EXPECT_EQ(expectedEmpty, buffer);
+  ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
+  EXPECT_EQ(expectedTwoEmpty, buffer);
 
 }

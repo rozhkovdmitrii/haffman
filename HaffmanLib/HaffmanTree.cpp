@@ -162,7 +162,7 @@ HaffmanTree::~HaffmanTree() {
 }
 
 void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr) {
-  reset();
+  resetTop();
 
   std::vector<TreeNode*> workTable(vecLeafNodePtr.begin(), vecLeafNodePtr.end());
   auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool {
@@ -195,7 +195,7 @@ void HaffmanTree::indexTree() {
   _top->setCode(TreeCode());
 }
 
-void HaffmanTree::reset() {
+void HaffmanTree::resetTop() {
   if (_top == nullptr)
     return;
   delete _top;
@@ -218,14 +218,14 @@ HaffmanTree::HaffmanTree() : _top(nullptr) {}
 
 #include <algorithm>
 HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) {
-  reset();
+  resetTop();
   _top = haffmanTree._top;
   haffmanTree._top = nullptr;
   std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
 }
 
 HaffmanTree & HaffmanTree::operator=(HaffmanTree && haffmanTree) noexcept {
-  reset();
+  resetTop();
   _top = haffmanTree._top;
   haffmanTree._top = nullptr;
   std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());

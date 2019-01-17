@@ -31,7 +31,6 @@ bool HaffmanEncoder::encode(const TreeCode & treeCode, VecByte & buffer) {
   return true;
 }
 
-
 bool HaffmanEncoder::encodeHeader(const FrequencyTable & freqTable, VecByte & buffer) {
   return encode(freqTable.getFreqPack(), buffer);
 }
@@ -60,7 +59,5 @@ bool TreeCodeBuff::emplace(const TreeCode & treeCode, byte & toBeWrote) {
 byte TreeCodeBuff::getPaddingSize() const {
   return _bufferedCount == 0 ? 0 : DigitCount - _bufferedCount;
 }
-
-
 
 }
