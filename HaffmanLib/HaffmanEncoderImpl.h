@@ -1,7 +1,7 @@
 #ifndef HAFFMAN_HAFFMANENCODER_H
 #define HAFFMAN_HAFFMANENCODER_H
 
-#include "ErrLog.h"
+#include "Log.h"
 #include "FrequencyTable.h"
 
 namespace HaffmanImpl

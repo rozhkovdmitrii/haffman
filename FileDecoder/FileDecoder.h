@@ -3,9 +3,11 @@
 
 namespace Haffman
 {
+
 class FileDecoder {
 
 };
+
 }
 
 #endif //HAFFMAN_FILEDECODER_H

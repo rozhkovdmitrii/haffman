@@ -8,8 +8,8 @@ add_library(haffmanLib
   HaffmanDecoderImpl.cpp
   HaffmanDecoderImpl.h
   CommonTypes.h
-  ErrLog.h
-  ErrLog.cpp
+  Log.h
+  Log.cpp
 )
 
 target_include_directories(haffmanLib PRIVATE .)

@@ -5,15 +5,16 @@
 #include <sstream>
 #include <iostream>
 //----------------------------------------------------------------------------------------------------------------------
-class ErrLog {
+class Log {
 public:
   enum class Type {
     DBGERR,
-    APPERR
+    APPERR,
+    APPINF
   };
 
-  ErrLog(Type type) : _type(type) {};
-  ~ErrLog()
+  Log(Type type) : _type(type) {};
+  ~Log()
   {
     switch (_type)
     {
@@ -22,6 +23,10 @@ public:
       break;
     case Type::APPERR:
       if (_isAppErrEnabled) std::cerr << "APPERR: " << _oss.str() << std::endl;
+      break;
+    case Type::APPINF:
+      if (_isAppInfEnabled) std::cout << "APPINF: " << _oss.str() << std::endl;
+
     }
   }
 
@@ -34,11 +39,14 @@ public:
     case Type::APPERR:
       _isAppErrEnabled = enabled;
       break;
+    case Type::APPINF:
+      _isAppInfEnabled = enabled;
+      break;
     }
   }
 
   template <typename T>
-  ErrLog & operator<<(const T & value)
+  Log & operator<<(const T & value)
   {
     _oss << value;
     return *this;
@@ -51,11 +59,13 @@ public:
 private:
   static bool _isAppErrEnabled;
   static bool _isDbgErrEnabled;
+  static bool _isAppInfEnabled;
   Type _type;
   std::ostringstream _oss;
+
 };
 //----------------------------------------------------------------------------------------------------------------------
-#define LOG(TYPE) ErrLog(ErrLog::Type::TYPE)
+#define LOG(TYPE) Log(Log::Type::TYPE)
 //----------------------------------------------------------------------------------------------------------------------
 #endif //HAFFMAN_LOGGER_H
 //----------------------------------------------------------------------------------------------------------------------

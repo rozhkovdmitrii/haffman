@@ -3,7 +3,7 @@
 
 #include "HaffmanTree.h"
 #include "FrequencyTable.h"
-#include "ErrLog.h"
+#include "Log.h"
 
 namespace HaffmanImpl
 {

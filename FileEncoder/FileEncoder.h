@@ -15,12 +15,15 @@ public:
 
   explicit FileEncoder(const std::string & ifPath, const std::string & ofPath);
   operator bool() const;
+  bool encodeInputFile();
+
+  const std::string & getIfPath() const;
+
+private:
   bool encodeMagicNum();
   bool encodeBlocksCount();
   bool encodeBlocks();
   bool encodeBlock();
-
-private:
 
   bool getInStreamSize(size_t & size);
   std::string _ifPath;

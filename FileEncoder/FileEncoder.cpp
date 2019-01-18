@@ -1,21 +1,22 @@
+//----------------------------------------------------------------------------------------------------------------------
 #include <iostream>
 #include <cmath>
 #include <cstring>
-
+//----------------------------------------------------------------------------------------------------------------------
 #include "CommonTypes.h"
-#include "ErrLog.h"
+#include "Log.h"
 #include "FileEncoder.h"
-
+//----------------------------------------------------------------------------------------------------------------------
 namespace Haffman
 {
-
+//----------------------------------------------------------------------------------------------------------------------
 FileEncoder::FileEncoder(const std::string & ifPath, const std::string & ofPath) :
   _ifPath(ifPath),
   _ofPath(ofPath),
   _ifstream(ifPath,  std::ios::binary | std::ios::ate),
   _ofstream(ofPath, std::ios::binary) {
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 FileEncoder::operator bool() const {
   if (!_ifstream.good())
   {
@@ -30,14 +31,14 @@ FileEncoder::operator bool() const {
   };
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeMagicNum() {
   static const unsigned long long magicNum = 0xFEDCBA98FEDCBA98;
   if (!_ofstream.write(reinterpret_cast<const char *>(&magicNum), sizeof(unsigned long long)))
     return LOG(DBGERR) << strerror(errno);
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeBlock() {
   auto readedSize = _ifstream.readsome(_buffer.data(), _buffer.size());
   VecByte encBuf;
@@ -47,7 +48,7 @@ bool FileEncoder::encodeBlock() {
     return LOG(DBGERR) << "Writing encoded block failed";
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeBlocksCount() {
   size_t inFileSize;
   if (!getInStreamSize(inFileSize))
@@ -57,7 +58,7 @@ bool FileEncoder::encodeBlocksCount() {
     return LOG(DBGERR) << strerror(errno);
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::getInStreamSize(size_t & size) {
 
   std::streampos endPos = _ifstream.tellg();
@@ -72,12 +73,23 @@ bool FileEncoder::getInStreamSize(size_t & size) {
   size = endPos - begPos;
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeBlocks() {
-  while (_blocksCount--)
-  {
+  auto blocksCount = _blocksCount;
+  while (blocksCount--) {
     if (!encodeBlock())
-      return LOG(DBGERR) << "Encoding next block failed: " << _blocksCount + 1;
+      return LOG(DBGERR) << "Encoding next block failed: " << blocksCount + 1;
   }
+  return true;
 }
+//----------------------------------------------------------------------------------------------------------------------
+const std::string & FileEncoder::getIfPath() const {
+  return _ifPath;
 }
+//----------------------------------------------------------------------------------------------------------------------
+bool FileEncoder::encodeInputFile() {
+  return encodeMagicNum() && encodeBlocksCount() && encodeBlocks();
+}
+//----------------------------------------------------------------------------------------------------------------------
+}
+//----------------------------------------------------------------------------------------------------------------------

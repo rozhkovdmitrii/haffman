@@ -4,7 +4,7 @@
 #include <queue>
 #include <algorithm>
 
-#include "ErrLog.h"
+#include "Log.h"
 #include "HaffmanTree.h"
 
 namespace HaffmanImpl
