@@ -49,6 +49,11 @@ private:
     Finished,
     Error
   };
+
+  enum {
+    MaxUselessDataSize = 1024
+  };
+
   bool processStateBlocksCountReading();
   bool processStateHeadReading();
   bool processStatePayloadReading(VecByte & buffer);
@@ -57,6 +62,8 @@ private:
   bool decodeFrequencyTableImpl();
   bool decodeFrequencyItem(FreqItem & freqItem);
   bool decodePayloadImpl(VecByte & buffer);
+
+  void clearUselessData();
 
   FrequencyTable _freqTable;
   VecByte _data;
@@ -85,6 +92,11 @@ bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer)
     if (!processState(buffer))
       break;
   }
+
+  if (_dataIndex > MaxUselessDataSize)
+    clearUselessData();
+
+
   return _state == State::Finished;
 }
 

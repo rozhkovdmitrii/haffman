@@ -118,7 +118,12 @@ bool HaffmanDecoderImpl::decodePayloadImpl(VecByte & buffer) {
   }
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
+void HaffmanDecoderImpl::clearUselessData() {
+  _data.erase(_data.begin(), _data.begin() + _dataIndex);
+  _dataIndex = 0;
+}
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::processStateHeadReading() {
   if (!decodeHead())
     return false;
