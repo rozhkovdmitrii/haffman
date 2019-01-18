@@ -32,20 +32,18 @@ FileEncoder::operator bool() const {
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
+bool FileEncoder::encodeInputFile() {
+  return encodeMagicNum() && encodeBlocksCount() && encodeBlocks();
+}
+//----------------------------------------------------------------------------------------------------------------------
+const std::string & FileEncoder::getIfPath() const {
+  return _ifPath;
+}
+//----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeMagicNum() {
   static const unsigned long long magicNum = 0xFEDCBA98FEDCBA98;
   if (!_ofstream.write(reinterpret_cast<const char *>(&magicNum), sizeof(unsigned long long)))
     return LOG(DBGERR) << strerror(errno);
-  return true;
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool FileEncoder::encodeBlock() {
-  auto readedSize = _ifstream.readsome(_buffer.data(), _buffer.size());
-  VecByte encBuf;
-  if (!_haffmanEncoder.encodeBlock(_buffer.begin(), _buffer.begin() + readedSize, encBuf))
-    return LOG(DBGERR) << "Encoding block failed";
-  if (!_ofstream.write((const char *)encBuf.data(), encBuf.size()))
-    return LOG(DBGERR) << "Writing encoded block failed";
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -83,12 +81,14 @@ bool FileEncoder::encodeBlocks() {
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
-const std::string & FileEncoder::getIfPath() const {
-  return _ifPath;
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool FileEncoder::encodeInputFile() {
-  return encodeMagicNum() && encodeBlocksCount() && encodeBlocks();
+bool FileEncoder::encodeBlock() {
+  auto readedSize = _ifstream.readsome(_buffer.data(), _buffer.size());
+  VecByte encBuf;
+  if (!_haffmanEncoder.encodeBlock(_buffer.begin(), _buffer.begin() + readedSize, encBuf))
+    return LOG(DBGERR) << "Encoding block failed";
+  if (!_ofstream.write((const char *)encBuf.data(), encBuf.size()))
+    return LOG(DBGERR) << "Writing encoded block failed";
+  return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
 }

@@ -86,7 +86,7 @@ bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
 
   uint wroteSize =  buffer.size() - baseBuffSize;
   if (wroteSize < 4)
-    return LOG(DBGERR) << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes";
+    return LOG(DBGERR) << "Encode TreeCode vector: buffer should contain at list 5 bytes";
   return true;
 }
 
