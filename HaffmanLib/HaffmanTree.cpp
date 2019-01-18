@@ -157,8 +157,7 @@ HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
 }
 
 HaffmanTree::~HaffmanTree() {
-  if (_top == nullptr)
-    delete _top;
+  delete _top;
 }
 
 void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
@@ -166,7 +165,7 @@ void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
 
   VecTreeNodePtr vecTreeNodePtr;
   for (const auto & freqItemPtr : vecFreqItem) {
-    LeafNode * newLeaf = new LeafNode(freqItemPtr._sym, freqItemPtr._freq);
+    auto * newLeaf = new LeafNode(freqItemPtr._sym, freqItemPtr._freq);
     vecTreeNodePtr.push_back(newLeaf);
   }
   auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool {
@@ -174,7 +173,7 @@ void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
   };
   std::priority_queue<TreeNode *, std::vector<TreeNode *>, decltype(cmp)> queue(cmp, vecTreeNodePtr);
 
-  JoinNode * join = new JoinNode;
+  auto * join = new JoinNode;
   while (!queue.empty()) {
     TreeNode * queueTop = queue.top();
     if (join->getFreq() > queueTop->getFreq()) {
@@ -193,14 +192,14 @@ void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
 void HaffmanTree::updateCachedCodes(TreeNode * treeNode) {
   if (treeNode == nullptr)
     return;
-  JoinNode * join = dynamic_cast<JoinNode *>(treeNode);
+  auto * join = dynamic_cast<JoinNode *>(treeNode);
   if (join != nullptr)
   {
     updateCachedCodes(join->getLeft());
     updateCachedCodes(join->getRight());
     return;
   }
-  LeafNode * leaf = dynamic_cast<LeafNode *>(treeNode);
+  auto * leaf = dynamic_cast<LeafNode *>(treeNode);
   if (leaf != nullptr)
     _rawLeafNodes[leaf->getSym()] = leaf;
 }
