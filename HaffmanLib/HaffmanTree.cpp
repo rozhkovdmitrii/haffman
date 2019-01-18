@@ -95,12 +95,12 @@ TreeNode::Type TreeNode::getType() const
   return _type;
 }
 
-int TreeNode::getFreq() const
+uint TreeNode::getFreq() const
 {
   return _freq;
 }
 
-void TreeNode::setFreq(int freq)
+void TreeNode::setFreq(uint freq)
 {
   _freq = freq;
 }
@@ -157,7 +157,7 @@ HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
 }
 
 HaffmanTree::~HaffmanTree() {
-  if (_top != nullptr)
+  if (_top == nullptr)
     delete _top;
 }
 
@@ -238,7 +238,7 @@ const TreeCode & HaffmanTree::getCode(byte sym) const {
 HaffmanTree::HaffmanTree() : _top(nullptr) {}
 
 #include <algorithm>
-HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) {
+HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) noexcept {
   reset();
   _top = haffmanTree._top;
   updateCachedCodes(_top);
