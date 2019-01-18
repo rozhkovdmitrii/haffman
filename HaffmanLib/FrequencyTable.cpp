@@ -1,7 +1,7 @@
 #include "FrequencyTable.h"
 #include <stack>
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 unsigned int FrequencyTable::getFrequencyOf(byte symb) const {

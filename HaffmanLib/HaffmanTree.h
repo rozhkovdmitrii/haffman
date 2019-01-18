@@ -4,7 +4,7 @@
 #include <array>
 #include "CommonTypes.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 struct TreeCode

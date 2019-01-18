@@ -318,7 +318,7 @@ do if you are upgrading from an earlier version of Google Mock.
 
 #### Upgrading from 1.1.0 or Earlier ####
 
-You may need to explicitly enable or disable Google Test's own TR1
+You may need to explicitly setEnabled or disable Google Test's own TR1
 tuple library.  See the instructions in section "[Choosing a TR1 Tuple
 Library](../googletest/#choosing-a-tr1-tuple-library)".
 

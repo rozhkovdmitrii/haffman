@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "HaffmanEncoderImpl.h"
 
-using namespace Haffman;
+using namespace HaffmanImpl;
 
 class EncodingTests : public testing::Test {
 protected:
@@ -11,8 +11,8 @@ protected:
   virtual void TearDown() {
   };
 
-  Haffman::FrequencyTable _frequencyTable;
-  Haffman::HaffmanEncoderImpl _encoder;
+  HaffmanImpl::FrequencyTable _frequencyTable;
+  HaffmanImpl::HaffmanEncoderImpl _encoder;
 };
 
 TEST_F(EncodingTests, EncodingTests_TestReadingSimple_Test) {
@@ -28,7 +28,7 @@ TEST_F(EncodingTests, EncodingTests_TestReadingSimple_Test) {
 }
 
 TEST_F(EncodingTests, SymFreqInitTest) {
-  Haffman::LeafNode sf;
+  HaffmanImpl::LeafNode sf;
   EXPECT_EQ(0, sf.getFreq());
   EXPECT_EQ(0, sf.getFreq());
 }
@@ -40,9 +40,9 @@ TEST_F(EncodingTests, TreeCodeInitTest) {
 }
 
 TEST_F(EncodingTests, SymFreqLessTest) {
-  std::vector<Haffman::LeafNode> vec = {{'d', 5}, {'c', 1}, {'b', 1}};
+  std::vector<HaffmanImpl::LeafNode> vec = {{'d', 5}, {'c', 1}, {'b', 1}};
   std::sort(vec.begin(), vec.end(),
-            [](const Haffman::LeafNode & left, const Haffman::LeafNode & right) -> bool {
+            [](const HaffmanImpl::LeafNode & left, const HaffmanImpl::LeafNode & right) -> bool {
               return left.getFreq() > right.getFreq();
             });
   EXPECT_EQ('d', vec[0].getSym());

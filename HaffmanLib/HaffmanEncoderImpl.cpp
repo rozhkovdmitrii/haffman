@@ -1,6 +1,6 @@
 #include "HaffmanEncoderImpl.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 bool HaffmanEncoderImpl::encode(const VecFreqItem & vecFreqItem, VecByte & buffer) {

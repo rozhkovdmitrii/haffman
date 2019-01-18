@@ -2,11 +2,15 @@
 #define HAFFMAN_COMMONTYPES_H
 
 #include <vector>
+#include <array>
 
-namespace Haffman
-{
 
 typedef unsigned char byte;
+
+namespace HaffmanImpl
+{
+
+
 
 struct FreqItem {
   byte _sym;
@@ -15,11 +19,13 @@ struct FreqItem {
   FreqItem(byte sym, unsigned int freq) : _sym(sym), _freq(freq) {}
 };
 
-typedef std::vector<FreqItem> VecFreqItem;
+
+
+}
+
+typedef std::vector<HaffmanImpl::FreqItem> VecFreqItem;
 typedef std::vector<unsigned int> VecUInt;
 typedef std::array<unsigned int, 256> ArrUInt256;
 typedef std::vector<byte> VecByte;
-
-}
 
 #endif //HAFFMAN_COMMONTYPES_H

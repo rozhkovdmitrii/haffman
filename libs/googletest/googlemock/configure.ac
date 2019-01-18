@@ -14,7 +14,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([scripts/gmock-config], [chmod +x scripts/gmock-config])
 
 # Initialize Automake with various options. We require at least v1.9, prevent
-# pedantic complaints about package files, and enable various distribution
+# pedantic complaints about package files, and setEnabled various distribution
 # targets.
 AM_INIT_AUTOMAKE([1.9 dist-bzip2 dist-zip foreign subdir-objects])
 

@@ -2098,7 +2098,7 @@ non-zero code, which will also signal a test failure to your test
 runner.
 
 If you don't write `::testing::GTEST_FLAG(throw_on_failure) = true;` in
-your `main()`, you can alternatively enable this feature by specifying
+your `main()`, you can alternatively setEnabled this feature by specifying
 the `--gtest_throw_on_failure` flag on the command-line or setting the
 `GTEST_THROW_ON_FAILURE` environment variable to a non-zero value.
 

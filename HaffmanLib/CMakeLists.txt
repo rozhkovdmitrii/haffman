@@ -8,7 +8,9 @@ add_library(haffmanLib
   HaffmanDecoderImpl.cpp
   HaffmanDecoderImpl.h
   CommonTypes.h
-  ErrLog.cpp ErrLog.h)
+  ErrLog.h
+  ErrLog.cpp
+)
 
 target_include_directories(haffmanLib PRIVATE .)
 

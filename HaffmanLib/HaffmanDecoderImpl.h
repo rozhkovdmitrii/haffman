@@ -5,7 +5,7 @@
 #include "FrequencyTable.h"
 #include "ErrLog.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 class DecTreeCodeState {
@@ -69,7 +69,7 @@ private:
 template<typename T>
 bool HaffmanDecoderImpl::read(T & value) {
   if (_dataLength < sizeof(T)) {
-    return ErrLog() << "ERROR: Data length = " << _dataLength  << " is too small. Must be at least: " << sizeof(T);
+    return LOG(DBGERR) << "ERROR: Data length = " << _dataLength << " is too small. Must be at least: " << sizeof(T);
   }
   value = *reinterpret_cast<T *>(&_data[_dataIndex]);
   _dataIndex += sizeof(T);

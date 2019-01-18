@@ -7,7 +7,7 @@
 #include "ErrLog.h"
 #include "HaffmanTree.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 JoinNode::JoinNode(TreeNode * left, TreeNode * right) :
@@ -79,10 +79,10 @@ std::string JoinNode::toString() const
 
 bool JoinNode::put(TreeNode * node) {
   if (node == nullptr)
-    return ErrLog() << "cannot put nullptr node into Haffman Tree";
+    return LOG(DBGERR) << "cannot put nullptr node into HaffmanImpl Tree";
   if (setLeft(node) || setRight(node))
     return true;
-  return ErrLog() << "cannot put node into full Haffman Tree";
+  return LOG(DBGERR) << "cannot put node into full HaffmanImpl Tree";
 }
 
 bool JoinNode::isFull() const {

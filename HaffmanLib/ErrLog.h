@@ -1,21 +1,41 @@
-
-
+//----------------------------------------------------------------------------------------------------------------------
 #ifndef HAFFMAN_LOGGER_H
 #define HAFFMAN_LOGGER_H
-
+//----------------------------------------------------------------------------------------------------------------------
 #include <sstream>
 #include <iostream>
-
+//----------------------------------------------------------------------------------------------------------------------
 class ErrLog {
 public:
-  ErrLog() = default;
+  enum class Type {
+    DBGERR,
+    APPERR
+  };
+
+  ErrLog(Type type) : _type(type) {};
   ~ErrLog()
   {
-    if (_enabled)
-      std::cerr << "ERROR: " << _oss.str() << std::endl;
+    switch (_type)
+    {
+    case Type::DBGERR:
+      if (_isDbgErrEnabled) std::cerr << "DBGERR: " << _oss.str() << std::endl;
+      break;
+    case Type::APPERR:
+      if (_isAppErrEnabled) std::cerr << "APPERR: " << _oss.str() << std::endl;
+    }
   }
-  static void enable() { _enabled = true; }
-  static void disable() { _enabled = false; }
+
+  static void setEnabled(Type type, bool enabled) {
+    switch (type)
+    {
+    case Type::DBGERR:
+      _isDbgErrEnabled = enabled;
+      break;
+    case Type::APPERR:
+      _isAppErrEnabled = enabled;
+      break;
+    }
+  }
 
   template <typename T>
   ErrLog & operator<<(const T & value)
@@ -29,9 +49,13 @@ public:
   }
 
 private:
-  static bool _enabled;
+  static bool _isAppErrEnabled;
+  static bool _isDbgErrEnabled;
+  Type _type;
   std::ostringstream _oss;
 };
-
-
+//----------------------------------------------------------------------------------------------------------------------
+#define LOG(TYPE) ErrLog(ErrLog::Type::TYPE)
+//----------------------------------------------------------------------------------------------------------------------
 #endif //HAFFMAN_LOGGER_H
+//----------------------------------------------------------------------------------------------------------------------

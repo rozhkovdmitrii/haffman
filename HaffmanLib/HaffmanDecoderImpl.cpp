@@ -1,36 +1,29 @@
 #include "HaffmanDecoderImpl.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
-
-
-Haffman::HaffmanDecoderImpl::HaffmanDecoderImpl() : _dataIndex(0), _dataLength(0), _state(State::BlocksCountReading) {
-}
+HaffmanImpl::HaffmanDecoderImpl::HaffmanDecoderImpl() :
+  _dataIndex(0),
+  _dataLength(0),
+  _state(State::BlocksCountReading) {}
 
 
 bool HaffmanDecoderImpl::processState(VecByte & buffer) {
-  auto dataIndex = _dataIndex;
-  auto dataLength = _dataLength;
-  try {
-    switch (_state) {
-    case State::BlocksCountReading:
-      return processStateBlocksCountReading();
-    case State::HeadReading:
-      return processStateHeadReading();
-    case State::PayloadReading:
-      return processStatePayloadReading(buffer);
-    case State::Finished:
-    case State::Error:
-      break;
-    }
-  } catch (const char * message)
-  {
-    _dataIndex = dataIndex;
-    _dataLength = dataLength;
-    _state = State::Error;
+
+  switch (_state) {
+  case State::BlocksCountReading:
+    return processStateBlocksCountReading();
+  case State::HeadReading:
+    return processStateHeadReading();
+  case State::PayloadReading:
+    return processStatePayloadReading(buffer);
+  case State::Finished:
+    return true;
+  case State::Error:
+  case State::MagicNumReading:
+    return false;
   }
-  return true;
 }
 
 bool HaffmanDecoderImpl::decodeHead() {
@@ -53,16 +46,16 @@ bool HaffmanDecoderImpl::processStateBlocksCountReading() {
 }
 
 bool HaffmanDecoderImpl::decodeBlocksCount() {
-  return !read(_blocksCount) ? ErrLog() << "Blocks count reading failed" : true;
+  return !read(_blocksCount) ? LOG(DBGERR) << "Blocks count reading failed" : true;
 }
 
 bool HaffmanDecoderImpl::decodeFrequencyTableImpl() {
   byte size;
   if (_data.empty())
-    return ErrLog() << "can not FileDecoder: _data ptr isn't set";
+    return LOG(DBGERR) << "can not FileDecoder: _data ptr isn't set";
 
   if (!read(size))
-    return ErrLog() << "can not read size of Haffman frequency table";
+    return LOG(DBGERR) << "can not read size of HaffmanImpl frequency table";
 
   _freqTable.reset();
   for (int i = 0; i < size; i++)
@@ -77,9 +70,9 @@ bool HaffmanDecoderImpl::decodeFrequencyTableImpl() {
 
 bool HaffmanDecoderImpl::decodeFrequencyItem(FreqItem & freqItem) {
   if (!read(freqItem._sym))
-    return ErrLog() << "can not read FreqItem._sym";
+    return LOG(DBGERR) << "can not read FreqItem._sym";
   if (!read(freqItem._freq))
-    return ErrLog() << "can not read FreqItem._freq";
+    return LOG(DBGERR) << "can not read FreqItem._freq";
   return true;
 }
 
@@ -107,14 +100,14 @@ bool HaffmanDecoderImpl::decodePayloadImpl(VecByte & buffer) {
 
   uint encCount;
   if (!read(encCount))
-    return ErrLog() << "read encrypted values count failed";
+    return LOG(DBGERR) << "read encrypted values count failed";
   DecTreeCodeState decodeState(encCount, haffmanTree.getTop());
 
   byte encByte = 0;
   uint decrypedCount = 0;
   while (decrypedCount < encCount) {
     if (!read(encByte))
-        return ErrLog() << "read next payload byte failed";
+        return LOG(DBGERR) << "read next payload byte failed";
     for (int i = 0; i < 8 && decrypedCount < encCount; ++i) {
       byte decByte;
       if (decodeState.addBitAndTryToDecode(encByte & 1 << 7 - i, decByte)) {
@@ -144,7 +137,7 @@ bool HaffmanDecoderImpl::processStatePayloadReading(VecByte & buffer) {
 bool DecTreeCodeState::addBitAndTryToDecode(bool bit, byte & sym) {
   JoinNode * pos = dynamic_cast<JoinNode *>(_pos);
   if (pos == nullptr)
-    return ErrLog() << "DecTreeCodeState unexpected state";
+    return LOG(DBGERR) << "DecTreeCodeState unexpected state";
 
   _pos = bit ? pos->getRight() : pos->getLeft();
   if (_pos->getType() == TreeNode::Type::Join)

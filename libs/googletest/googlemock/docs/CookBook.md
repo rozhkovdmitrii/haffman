@@ -2738,7 +2738,7 @@ tests like so:
   ::testing::FLAGS_gmock_verbose = "error";
 ```
 
-Now, judiciously use the right flag to enable Google Mock serve you better!
+Now, judiciously use the right flag to setEnabled Google Mock serve you better!
 
 ## Gaining Super Vision into Mock Calls ##
 

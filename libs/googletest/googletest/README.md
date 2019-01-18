@@ -236,7 +236,7 @@ configuration may not work (or may not work well) out of the box in
 some environments.  However, you can easily tweak Google Test by
 defining control macros on the compiler command line.  Generally,
 these macros are named like `GTEST_XYZ` and you define them to either 1
-or 0 to enable or disable a certain feature.
+or 0 to setEnabled or disable a certain feature.
 
 We list the most frequently used macros below.  For a complete list,
 see file [include/gtest/internal/gtest-port.h](include/gtest/internal/gtest-port.h).

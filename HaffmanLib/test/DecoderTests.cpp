@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "HaffmanDecoderImpl.h"
 
-using namespace Haffman;
+using namespace HaffmanImpl;
 
 class DecodingTests : public testing::Test {
 protected:
@@ -12,7 +12,7 @@ protected:
   virtual void TearDown() {
   };
 
-  Haffman::HaffmanDecoderImpl _decoder;
+  HaffmanImpl::HaffmanDecoderImpl _decoder;
 };
 
 TEST_F(DecodingTests, DecodeEmptyTest)
@@ -96,7 +96,6 @@ TEST_F(DecodingTests, DecodeSequence)
 
 TEST_F(DecodingTests, DecodeInTwoStepsTest)
 {
-
   HaffmanEncoderImpl encoder;
   std::string str = "beep boop beer!beep boop beer!\55";
   VecByte encBlocksCountBlock = {0x02, 0x00, 0x00, 0x00 };

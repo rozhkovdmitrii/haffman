@@ -8,7 +8,7 @@
 
 #include "HaffmanTree.h"
 
-namespace Haffman {
+namespace HaffmanImpl {
 
 class FrequencyTable {
 public:

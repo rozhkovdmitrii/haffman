@@ -4,7 +4,7 @@
 #include "ErrLog.h"
 #include "FrequencyTable.h"
 
-namespace Haffman
+namespace HaffmanImpl
 {
 
 struct WriteTreeCodeState {
@@ -23,11 +23,6 @@ struct WriteTreeCodeState {
 class HaffmanEncoderImpl
 {
 public:
-
-  enum {
-    ReadBlockSize = 1024 * 1024 * 5
-  };
-
   HaffmanEncoderImpl() = default;
 
   template <typename T>
@@ -82,7 +77,7 @@ bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
   for (auto i = begin; i != end; ++i) {
     const TreeCode & code = _haffmanTree.getCode(*i);
     if (code._size == 0)
-      return ErrLog() << "encoding not processed in HaffmanTree value: '" << *i << "'";
+      return LOG(DBGERR) << "encoding not processed in HaffmanTree value: '" << *i << "'";
     encode(encPayloadState, code, buffer);
   }
 
@@ -91,7 +86,7 @@ bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
 
   uint wroteSize =  buffer.size() - baseBuffSize;
   if (wroteSize < 4)
-    return ErrLog() << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes";
+    return LOG(DBGERR) << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes";
   return true;
 }
 
