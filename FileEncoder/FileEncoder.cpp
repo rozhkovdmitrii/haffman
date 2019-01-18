@@ -17,7 +17,15 @@ FileEncoder::FileEncoder(const std::string & ifPath, const std::string & ofPath)
   _ofstream(ofPath, std::ios::binary) {
 }
 //----------------------------------------------------------------------------------------------------------------------
-FileEncoder::operator bool() const {
+bool FileEncoder::encodeInputFile() {
+  return isReadyToEncode() && encodeMagicNum() && encodeBlocksCount() && encodeBlocks();
+}
+//----------------------------------------------------------------------------------------------------------------------
+const std::string & FileEncoder::getIfPath() const {
+  return _ifPath;
+}
+//----------------------------------------------------------------------------------------------------------------------
+bool FileEncoder::isReadyToEncode() const {
   if (!_ifstream.good())
   {
     std::cerr << "Input file is not good: " << _ifPath;
@@ -30,14 +38,6 @@ FileEncoder::operator bool() const {
     return false;
   };
   return true;
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool FileEncoder::encodeInputFile() {
-  return encodeMagicNum() && encodeBlocksCount() && encodeBlocks();
-}
-//----------------------------------------------------------------------------------------------------------------------
-const std::string & FileEncoder::getIfPath() const {
-  return _ifPath;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeMagicNum() {

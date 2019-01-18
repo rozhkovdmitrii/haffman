@@ -10,4 +10,5 @@ include_directories(HaffmanLib)
 
 add_subdirectory(HaffmanLib)
 add_subdirectory(FileEncoder)
+add_subdirectory(FileDecoder)
 

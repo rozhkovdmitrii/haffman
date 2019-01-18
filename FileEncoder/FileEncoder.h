@@ -1,10 +1,12 @@
+//----------------------------------------------------------------------------------------------------------------------
 #ifndef HAFFMAN_FILEENCODER_H
 #define HAFFMAN_FILEENCODER_H
-
+//----------------------------------------------------------------------------------------------------------------------
 #include <string>
 #include <fstream>
-#include <HaffmanEncoderImpl.h>
-
+//----------------------------------------------------------------------------------------------------------------------
+#include "HaffmanEncoderImpl.h"
+//----------------------------------------------------------------------------------------------------------------------
 namespace Haffman
 {
 class FileEncoder {
@@ -14,12 +16,11 @@ public:
   };
 
   explicit FileEncoder(const std::string & ifPath, const std::string & ofPath);
-  operator bool() const;
   bool encodeInputFile();
-
   const std::string & getIfPath() const;
 
 private:
+  bool isReadyToEncode() const;
   bool encodeMagicNum();
   bool encodeBlocksCount();
   bool encodeBlocks();
@@ -36,5 +37,6 @@ private:
   std::array<char, BlockSize> _buffer;
 };
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 #endif //HAFFMAN_FILEENCODER_H
+//----------------------------------------------------------------------------------------------------------------------
