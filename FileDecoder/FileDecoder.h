@@ -2,7 +2,10 @@
 #ifndef HAFFMAN_FILEDECODER_H
 #define HAFFMAN_FILEDECODER_H
 //----------------------------------------------------------------------------------------------------------------------
-#include "Log.h"
+#include <string>
+#include <fstream>
+//----------------------------------------------------------------------------------------------------------------------
+#include "HaffmanDecoderImpl.h"
 //----------------------------------------------------------------------------------------------------------------------
 namespace Haffman
 {
@@ -19,6 +22,13 @@ public:
 
 private:
   std::string _ifPath;
+  std::ifstream _ifstream;
+  std::string _ofPath;
+  std::ofstream _ofstream;
+  uint _blocksCount;
+  HaffmanImpl::HaffmanDecoderImpl _haffmanDecoder;
+
+  std::array<char, BlockSize> _buffer;
 };
 //----------------------------------------------------------------------------------------------------------------------
 }

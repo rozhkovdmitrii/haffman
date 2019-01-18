@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   if (!decoder.decodeInputFile())
     return 1;
 
-  LOG(APPINF) << "In file successfully encoded: \"" << decoder.getIfPath() << "\"";
+  LOG(APPINF) << "In file successfully decoded: \"" << decoder.getIfPath() << "\"";
   return 0;
 }
 //----------------------------------------------------------------------------------------------------------------------

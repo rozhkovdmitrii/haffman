@@ -86,7 +86,7 @@ bool FileEncoder::encodeBlock() {
   VecByte encBuf;
   if (!_haffmanEncoder.encodeBlock(_buffer.begin(), _buffer.begin() + readedSize, encBuf))
     return LOG(DBGERR) << "Encoding block failed";
-  if (!_ofstream.write((const char *)encBuf.data(), encBuf.size()))
+  if (!_ofstream.write(reinterpret_cast<const char *>(encBuf.data()), encBuf.size()))
     return LOG(DBGERR) << "Writing encoded block failed";
   return true;
 }
