@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "HaffmanEncoder.h"
+#include "HaffmanEncoderImpl.h"
 
 using namespace Haffman;
 
@@ -12,7 +12,7 @@ protected:
   };
 
   Haffman::FrequencyTable _frequencyTable;
-  Haffman::HaffmanEncoder _encoder;
+  Haffman::HaffmanEncoderImpl _encoder;
 };
 
 TEST_F(EncodingTests, EncodingTests_TestReadingSimple_Test) {
@@ -45,9 +45,9 @@ TEST_F(EncodingTests, SymFreqLessTest) {
             [](const Haffman::LeafNode & left, const Haffman::LeafNode & right) -> bool {
               return left.getFreq() > right.getFreq();
             });
-  EXPECT_EQ('d', vec[0]._sym);
-  EXPECT_EQ('c', vec[1]._sym);
-  EXPECT_EQ('b', vec[2]._sym);
+  EXPECT_EQ('d', vec[0].getSym());
+  EXPECT_EQ('c', vec[1].getSym());
+  EXPECT_EQ('b', vec[2].getSym());
 }
 
 TEST_F(EncodingTests, EmptyDataTest) {}
@@ -71,7 +71,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   LeafNode * p00 = dynamic_cast<LeafNode *>(p0->getLeft());
   ASSERT_NE(nullptr, p00);
   EXPECT_EQ(TreeNode::Type::Leafe, p00->getType());
-  EXPECT_EQ('b', p00->_sym);
+  EXPECT_EQ('b', p00->getSym());
 
   JoinNode * p01 = dynamic_cast<JoinNode *>(p0->getRight());
   ASSERT_NE(nullptr, p01);
@@ -80,7 +80,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   LeafNode * p011 = dynamic_cast<LeafNode *>(p01->getRight());
   ASSERT_NE(nullptr, p011);
   EXPECT_EQ(TreeNode::Type::Leafe, p011->getType());
-  EXPECT_EQ('p', p011->_sym);
+  EXPECT_EQ('p', p011->getSym());
 
   JoinNode * p010 = dynamic_cast<JoinNode *>(p01->getLeft());
   ASSERT_NE(nullptr, p010);
@@ -88,12 +88,12 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   LeafNode * p0100 = dynamic_cast<LeafNode *>(p010->getLeft());
   ASSERT_NE(nullptr, p0100);
   EXPECT_EQ(TreeNode::Type::Leafe, p0100->getType());
-  EXPECT_EQ('r', p0100->_sym);
+  EXPECT_EQ('r', p0100->getSym());
 
   LeafNode * p0101 = dynamic_cast<LeafNode *>(p010->getRight());
   ASSERT_NE(nullptr, p0101);
   EXPECT_EQ(TreeNode::Type::Leafe, p0101->getType());
-  EXPECT_EQ('!', p0101->_sym);
+  EXPECT_EQ('!', p0101->getSym());
 
   JoinNode * p1 = dynamic_cast<JoinNode *>(haffmanTree.getTop()->getRight());
   ASSERT_NE(nullptr, p1);
@@ -101,7 +101,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   LeafNode * p10 = dynamic_cast<LeafNode *>(p1->getLeft());
   ASSERT_NE(nullptr, p10);
   EXPECT_EQ(TreeNode::Type::Leafe, p10->getType());
-  EXPECT_EQ('e', p10->_sym);
+  EXPECT_EQ('e', p10->getSym());
 
   JoinNode * p11 = dynamic_cast<JoinNode *>(p1->getRight());
   ASSERT_NE(nullptr, p11);
@@ -109,12 +109,12 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   LeafNode * p111 = dynamic_cast<LeafNode *>(p11->getRight());
   ASSERT_NE(nullptr, p111);
   EXPECT_EQ(TreeNode::Type::Leafe, p111->getType());
-  EXPECT_EQ('o', p111->_sym);
+  EXPECT_EQ('o', p111->getSym());
 
   LeafNode * p110 = dynamic_cast<LeafNode *>(p11->getLeft());
   ASSERT_NE(nullptr, p110);
   EXPECT_EQ(TreeNode::Type::Leafe, p110->getType());
-  EXPECT_EQ(' ', p110->_sym);
+  EXPECT_EQ(' ', p110->getSym());
 }
 
 TEST_F(EncodingTests, FrequencyTable_TreeCodeTest_Test) {
@@ -196,7 +196,7 @@ TEST_F(EncodingTests, EncodingTreeCodesTest)
   const TreeCode & o = haffmanTree.getCode('o');
   const TreeCode & r = haffmanTree.getCode('r');
 
-  TreeCodeBuff treeCodeBuff;
+  WriteTreeCodeState treeCodeBuff;
 
   byte toBeWrote = 0;
   ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
@@ -277,8 +277,7 @@ TEST_F(EncodingTests, EncodingTreeCodesTest)
   VecTreeCode vecTreeCode { b, e, e, p, space,  b, o, o, p, space, b, e, e, r, shout };
 
   VecByte expected {
-    0x0A, 0x00, 0x00, 0x00,        // size
-    0x00,                          // padding
+    0x0F, 0x00, 0x00, 0x00,        // size
     0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
   };
   VecByte buffer;
@@ -297,12 +296,11 @@ TEST_F(EncodingTests, TestEncoding)
     'o', 0x02, 0x00, 0x00, 0x00,
     'p', 0x02, 0x00, 0x00, 0x00,
     'r', 0x01, 0x00, 0x00, 0x00,
-    0x0A, 0x00, 0x00, 0x00,        // size
-    0x00,                          // padding
+    0x0F, 0x00, 0x00, 0x00,        // size
     0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
   };
 
-  HaffmanEncoder encoder;
+  HaffmanEncoderImpl encoder;
   std::string seq("beep boop beer!");
   VecByte buffer;
   ASSERT_TRUE(encoder.encodeBlock(seq.begin(), seq.end(), buffer));
@@ -310,17 +308,32 @@ TEST_F(EncodingTests, TestEncoding)
 
   VecByte expectedTwoEmpty = {
     0x00,
+    0x00, 0x00, 0x00, 0x00,
 
-    0x05, 0x00, 0x00, 0x00,
     0x00,
-    0x00,
-
-    0x05, 0x00, 0x00, 0x00,
-    0x00
+    0x00, 0x00, 0x00, 0x00,
   };
   buffer.clear();
   std::string empty;
   ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
   ASSERT_TRUE(encoder.encodeBlock(empty.begin(), empty.end(), buffer));
   EXPECT_EQ(expectedTwoEmpty, buffer);
+}
+
+TEST_F(EncodingTests, CanUseEncoderTwiceTest)
+{
+
+  std::string str = "beep boop beer!";
+  std::string stuff = "adsfasdfjlkjadsflkj";
+  HaffmanEncoderImpl singleUsedEncoder;
+  HaffmanEncoderImpl encoder;
+
+  VecByte stufEnc, strDirtyEncoded, strClearEncoded;
+  encoder.encodeBlock(stuff.begin(), stuff.end(), stufEnc);
+  encoder.encodeBlock(str.begin(), str.end(), strDirtyEncoded);
+  encoder.encodeBlock(str.begin(), str.end(), strClearEncoded);
+  EXPECT_EQ(strClearEncoded, strDirtyEncoded);
+
+
+
 }

@@ -49,24 +49,27 @@ protected:
   Type _type;
   TreeCode _code;
 };
+typedef std::vector<TreeNode*> VecTreeNodePtr;
 
 class LeafNode : public TreeNode
 {
 public:
   virtual ~LeafNode() override {}
-  LeafNode(char sym, long freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
+  LeafNode(byte sym, long freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
   LeafNode() : LeafNode(0, 0) {}
   virtual std::string toString() const override;
   const TreeCode & getCode() const;
-
-  char _sym = 0;
+  const byte getSym() const;
+  void setSym(byte sym);
+private:
+  byte _sym = 0;
 };
 typedef std::vector<LeafNode *> VecLeafNodePtr;
 
 class JoinNode : public TreeNode
 {
 public:
-  JoinNode() : JoinNode(nullptr, nullptr) {}
+  JoinNode();
   JoinNode(TreeNode * left, TreeNode * right);
   virtual ~JoinNode() override;
 
@@ -102,12 +105,13 @@ public:
   const TreeCode & getCode(byte sym) const;
 
 private:
-  void buildTree(const VecLeafNodePtr & vecLeafNodePtr);
+  void buildFrom(const VecFreqItem & vecFreqItem);
+  void updateCachedCodes(TreeNode *);
   void indexTree();
-  void resetTop();
+  void reset();
 
-  std::array<LeafNode, 256> _rawLeafNodes;
   JoinNode * _top = nullptr;
+  std::array<LeafNode *, 256> _rawLeafNodes;
 };
 
 }

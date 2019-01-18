@@ -1,13 +1,13 @@
 #ifndef HAFFMAN_HAFFMANENCODER_H
 #define HAFFMAN_HAFFMANENCODER_H
 
+#include "ErrLog.h"
 #include "FrequencyTable.h"
 
 namespace Haffman
 {
 
-
-struct TreeCodeBuff {
+struct WriteTreeCodeState {
   enum {
     DigitCount = sizeof(byte) * 8
   };
@@ -18,11 +18,9 @@ struct TreeCodeBuff {
   bool emplace(const TreeCode & treeCode, byte & toBeWrote);
 
   void reset() { _buffer = 0; _bufferedCount = 0; }
-
-  byte getPaddingSize() const;
 };
 
-class HaffmanEncoder
+class HaffmanEncoderImpl
 {
 public:
 
@@ -30,7 +28,7 @@ public:
     ReadBlockSize = 1024 * 1024 * 5
   };
 
-  HaffmanEncoder() = default;
+  HaffmanEncoderImpl() = default;
 
   template <typename T>
   void prepareToEncode(T begin, T end);
@@ -44,7 +42,7 @@ public:
   bool encodePayload(T begin, T end, VecByte & buffer);
   bool encode(const VecFreqItem &, VecByte & buffer);
   bool encode(const FreqItem &, VecByte & buffer);
-  bool encode(const TreeCode & treeCode, VecByte & buffer);
+  bool encode(WriteTreeCodeState & state, const TreeCode & treeCode, VecByte & buffer);
 
   template <typename T>
   void write(T value, VecByte & buffer);
@@ -52,12 +50,12 @@ public:
 private:
   FrequencyTable _freqTable;
   HaffmanTree _haffmanTree;
-  TreeCodeBuff _writeCodeState;
+  WriteTreeCodeState _writeCodeState;
   uint _wroteSize = 0;
 };
 
 template<typename T>
-bool HaffmanEncoder::encodeBlock(T begin, T end, VecByte & buffer) {
+bool HaffmanEncoderImpl::encodeBlock(T begin, T end, VecByte & buffer) {
   prepareToEncode(begin, end);
 
   if (!encodeHeader(_freqTable, buffer))
@@ -70,37 +68,30 @@ bool HaffmanEncoder::encodeBlock(T begin, T end, VecByte & buffer) {
 }
 
 template <typename T>
-void HaffmanEncoder::prepareToEncode(T begin, T end) {
+void HaffmanEncoderImpl::prepareToEncode(T begin, T end) {
   _freqTable.reset();
   _freqTable.takeFrequency(begin, end);
   _haffmanTree = _freqTable.getHaffmanTree();
 }
 
 template <typename T>
-bool HaffmanEncoder::encodePayload(T begin, T end, VecByte & buffer) {
+bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
+  WriteTreeCodeState encPayloadState;
   uint baseBuffSize = buffer.size();
-  write((uint)0, buffer); //write size
-  write((byte)0, buffer); //write padding
-
+  write((uint)std::distance(begin, end), buffer); //write size
   for (auto i = begin; i != end; ++i) {
     const TreeCode & code = _haffmanTree.getCode(*i);
-    if (code._size == 0) {
-      std::cerr << "ERROR: encoding not processed in HaffmanTree value: '" << *i << "'" << std::endl;
-      return false;
-    }
-    encode(code, buffer);
+    if (code._size == 0)
+      return ErrLog() << "encoding not processed in HaffmanTree value: '" << *i << "'";
+    encode(encPayloadState, code, buffer);
   }
 
-  if (!_writeCodeState.isEmpty())
-    write(_writeCodeState._buffer, buffer);
+  if (!encPayloadState.isEmpty())
+    write(encPayloadState._buffer, buffer);
 
   uint wroteSize =  buffer.size() - baseBuffSize;
-  if (wroteSize < 5) {
-    std::cerr << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes" << std::endl;
-    return false;
-  }
-  *reinterpret_cast<uint*>(&buffer[baseBuffSize + 0]) = wroteSize;
-  *reinterpret_cast<byte*>(&buffer[baseBuffSize + 4]) = _writeCodeState.getPaddingSize();
+  if (wroteSize < 4)
+    return ErrLog() << "ERROR: Encode TreeCode vector: buffer should contain at list 5 bytes";
   return true;
 }
 

@@ -4,6 +4,7 @@
 #include <queue>
 #include <algorithm>
 
+#include "ErrLog.h"
 #include "HaffmanTree.h"
 
 namespace Haffman
@@ -11,18 +12,19 @@ namespace Haffman
 
 JoinNode::JoinNode(TreeNode * left, TreeNode * right) :
   TreeNode(Type::Join),
-  _left(left),
-  _right(right)
+  _left(left), _right(right)
 {
   calcFrequency();
 }
 
+JoinNode::JoinNode() : JoinNode(nullptr, nullptr) {
+}
+
+
 JoinNode::~JoinNode()
 {
-  if (nullptr != dynamic_cast<JoinNode *>(_left))
-    delete _left;
-  if (nullptr != dynamic_cast<JoinNode *>(_right))
-    delete _right;
+  delete _left;
+  delete _right;
 }
 
 void JoinNode::calcFrequency()
@@ -76,19 +78,17 @@ std::string JoinNode::toString() const
 }
 
 bool JoinNode::put(TreeNode * node) {
-  if (node == nullptr) {
-    std::cerr << "ERROR: cannot put nullptr node into Haffman Tree" << std::endl;
-    return false;
-  }
+  if (node == nullptr)
+    return ErrLog() << "cannot put nullptr node into Haffman Tree";
   if (setLeft(node) || setRight(node))
     return true;
-  std::cerr << "ERROR: cannot put node into full Haffman Tree" << std::endl;
-  return false;
+  return ErrLog() << "cannot put node into full Haffman Tree";
 }
 
 bool JoinNode::isFull() const {
   return _left != nullptr && _right != nullptr;
 }
+
 
 TreeNode::Type TreeNode::getType() const
 {
@@ -141,18 +141,18 @@ const TreeCode & LeafNode::getCode() const {
   return _code;
 }
 
+const byte LeafNode::getSym() const {
+  return _sym;
+}
+
+void LeafNode::setSym(byte sym) {
+  _sym = sym;
+}
+
 HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
 
-  for (int i = 0; i < _rawLeafNodes.size(); ++i)
-    _rawLeafNodes[i]._sym = (byte) i;
-
-  VecLeafNodePtr vecLeafNodePtr;
-  for (const auto & freqItemPtr : vecFreqItem) {
-    _rawLeafNodes[freqItemPtr._sym].setFreq(freqItemPtr._freq);
-    vecLeafNodePtr.push_back(&_rawLeafNodes[freqItemPtr._sym]);
-  }
-
-  buildTree(vecLeafNodePtr);
+  buildFrom(vecFreqItem);
+  updateCachedCodes(_top);
   indexTree();
 }
 
@@ -161,14 +161,18 @@ HaffmanTree::~HaffmanTree() {
     delete _top;
 }
 
-void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr) {
-  resetTop();
+void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
+  reset();
 
-  std::vector<TreeNode*> workTable(vecLeafNodePtr.begin(), vecLeafNodePtr.end());
+  VecTreeNodePtr vecTreeNodePtr;
+  for (const auto & freqItemPtr : vecFreqItem) {
+    LeafNode * newLeaf = new LeafNode(freqItemPtr._sym, freqItemPtr._freq);
+    vecTreeNodePtr.push_back(newLeaf);
+  }
   auto cmp = [](const TreeNode * left, const TreeNode * right) -> bool {
     return left->getFreq() > right->getFreq();
   };
-  std::priority_queue<TreeNode *, std::vector<TreeNode *>, decltype(cmp)> queue(cmp, workTable);
+  std::priority_queue<TreeNode *, std::vector<TreeNode *>, decltype(cmp)> queue(cmp, vecTreeNodePtr);
 
   JoinNode * join = new JoinNode;
   while (!queue.empty()) {
@@ -186,6 +190,21 @@ void HaffmanTree::buildTree(const VecLeafNodePtr & vecLeafNodePtr) {
   _top = join;
 }
 
+void HaffmanTree::updateCachedCodes(TreeNode * treeNode) {
+  if (treeNode == nullptr)
+    return;
+  JoinNode * join = dynamic_cast<JoinNode *>(treeNode);
+  if (join != nullptr)
+  {
+    updateCachedCodes(join->getLeft());
+    updateCachedCodes(join->getRight());
+    return;
+  }
+  LeafNode * leaf = dynamic_cast<LeafNode *>(treeNode);
+  if (leaf != nullptr)
+    _rawLeafNodes[leaf->getSym()] = leaf;
+}
+
 void HaffmanTree::indexTree() {
   if (!_top)
   {
@@ -195,7 +214,8 @@ void HaffmanTree::indexTree() {
   _top->setCode(TreeCode());
 }
 
-void HaffmanTree::resetTop() {
+void HaffmanTree::reset() {
+  std::fill(_rawLeafNodes.begin(), _rawLeafNodes.end(), nullptr);
   if (_top == nullptr)
     return;
   delete _top;
@@ -211,26 +231,29 @@ std::string HaffmanTree::toString() const {
 }
 
 const TreeCode & HaffmanTree::getCode(byte sym) const {
-  return _rawLeafNodes[sym].getCode();
+  const static TreeCode empty;
+  return _rawLeafNodes[sym] == nullptr ? empty : _rawLeafNodes[sym]->getCode();
 }
 
 HaffmanTree::HaffmanTree() : _top(nullptr) {}
 
 #include <algorithm>
 HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) {
-  resetTop();
+  reset();
   _top = haffmanTree._top;
+  updateCachedCodes(_top);
   haffmanTree._top = nullptr;
   std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
 }
 
 HaffmanTree & HaffmanTree::operator=(HaffmanTree && haffmanTree) noexcept {
-  resetTop();
+  reset();
   _top = haffmanTree._top;
+  updateCachedCodes(_top);
   haffmanTree._top = nullptr;
-  std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
   return *this;
 }
+
 
 std::ostream & operator<<(std::ostream & os, const TreeCode & treeCode) {
   int size = treeCode._size;

@@ -20,8 +20,7 @@ HaffmanTree FrequencyTable::getHaffmanTree() const {
   VecFreqItem vecFreqItem;
   for (int i = 0; i < _rawFreqBuf.size(); ++i)
     if (_rawFreqBuf[i] != 0) vecFreqItem.emplace_back((byte)i, _rawFreqBuf[i]);
-  HaffmanTree tree(vecFreqItem);
-  return tree;
+  return HaffmanTree(vecFreqItem);
 }
 
 VecFreqItem FrequencyTable::getFreqPack() const { //TODO: optimize

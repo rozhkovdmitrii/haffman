@@ -333,15 +333,15 @@ class ScopedMockLog : public LogSink {
                     const char* message, size_t message_len) {
     // We are only interested in the log severity, full file name, and
     // log message.
-    Log(severity, full_filename, std::string(message, message_len));
+    ErrLog(severity, full_filename, std::string(message, message_len));
   }
 
   // Implements the mock method:
   //
-  //   void Log(LogSeverity severity,
+  //   void ErrLog(LogSeverity severity,
   //            const string& file_path,
   //            const string& message);
-  MOCK_METHOD3(Log, void(LogSeverity severity, const string& file_path,
+  MOCK_METHOD3(ErrLog, void(LogSeverity severity, const string& file_path,
                          const string& message));
 };
 ```
@@ -1453,12 +1453,12 @@ has occurred. For example, in
 
   Sequence s1, s2;
 
-  EXPECT_CALL(log, Log(WARNING, _, "File too large."))     // #1
+  EXPECT_CALL(log, ErrLog(WARNING, _, "File too large."))     // #1
       .Times(AnyNumber())
       .InSequence(s1, s2);
-  EXPECT_CALL(log, Log(WARNING, _, "Data set is empty."))  // #2
+  EXPECT_CALL(log, ErrLog(WARNING, _, "Data set is empty."))  // #2
       .InSequence(s1);
-  EXPECT_CALL(log, Log(WARNING, _, "User not found."))     // #3
+  EXPECT_CALL(log, ErrLog(WARNING, _, "User not found."))     // #3
       .InSequence(s2);
 ```
 
@@ -1471,8 +1471,8 @@ saturated. For example,
 ```
 using ::testing::_;
 ...
-  EXPECT_CALL(log, Log(WARNING, _, _));                  // #1
-  EXPECT_CALL(log, Log(WARNING, _, "File too large."));  // #2
+  EXPECT_CALL(log, ErrLog(WARNING, _, _));                  // #1
+  EXPECT_CALL(log, ErrLog(WARNING, _, "File too large."));  // #2
 ```
 
 says that there will be exactly one warning with the message `"File
@@ -1485,8 +1485,8 @@ soon as it becomes saturated:
 ```
 using ::testing::_;
 ...
-  EXPECT_CALL(log, Log(WARNING, _, _));                 // #1
-  EXPECT_CALL(log, Log(WARNING, _, "File too large."))  // #2
+  EXPECT_CALL(log, ErrLog(WARNING, _, _));                 // #1
+  EXPECT_CALL(log, ErrLog(WARNING, _, "File too large."))  // #2
       .RetiresOnSaturation();
 ```
 

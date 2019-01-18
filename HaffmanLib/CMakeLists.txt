@@ -3,12 +3,12 @@ add_library(haffmanLib
   FrequencyTable.cpp
   HaffmanTree.cpp
   HaffmanTree.h
-  HaffmanEncoder.cpp
-  HaffmanEncoder.h
-  HaffmanDecoder.cpp
-  HaffmanDecoder.h
+  HaffmanEncoderImpl.cpp
+  HaffmanEncoderImpl.h
+  HaffmanDecoderImpl.cpp
+  HaffmanDecoderImpl.h
   CommonTypes.h
-)
+  ErrLog.cpp ErrLog.h)
 
 target_include_directories(haffmanLib PRIVATE .)
 
