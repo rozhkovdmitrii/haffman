@@ -29,8 +29,6 @@ public:
   void addData(T begin, T end);
   template <typename T>
   bool addDataAndTryToDecode(T begin, T end, VecByte & buffer);
-
-
   bool processState(VecByte & buffer);
   bool decodeHead();
   bool decodePayload(VecByte & buffer);
@@ -39,7 +37,8 @@ public:
   bool read(T & value);
 
   const FrequencyTable & getFrequencyTable() const;
-
+  const bool isFinished() const;
+  const bool isError() const;
 private:
   enum class State {
     MagicNumReading,
@@ -89,12 +88,23 @@ template <typename T>
 bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer) {
   addData(begin, end);
   while (_state != State::Finished && _state != State::Error) {
+    auto dataIndex = _dataIndex;
+    auto dataLength = _dataLength;
+    auto bufferSize = buffer.size();
     if (!processState(buffer))
+    {
+      _dataIndex = dataIndex;
+      _dataLength = _dataLength;
+      buffer.resize(bufferSize);
       break;
+    }
+
   }
 
+/*
   if (_dataIndex > MaxUselessDataSize)
     clearUselessData();
+*/
 
 
   return _state == State::Finished;

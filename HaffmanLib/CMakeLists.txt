@@ -10,7 +10,7 @@ add_library(haffmanLib
   CommonTypes.h
   Log.h
   Log.cpp
-)
+  TreeCode.h TreeCode.cpp)
 
 target_include_directories(haffmanLib PRIVATE .)
 

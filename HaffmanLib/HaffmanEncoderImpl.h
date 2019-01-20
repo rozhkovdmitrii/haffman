@@ -8,14 +8,15 @@ namespace HaffmanImpl
 {
 
 struct WriteTreeCodeState {
+  unsigned short _buffer = 0;
+
   enum {
-    DigitCount = sizeof(byte) * 8
+    DigitCount = sizeof(_buffer) * 8
   };
 
-  byte _buffer = 0;
   byte _bufferedCount = 0;
   bool isEmpty() const { return _bufferedCount == 0; }
-  bool emplace(const TreeCode & treeCode, byte & toBeWrote);
+  bool emplace(const TreeCode & treeCode, unsigned short & toBeWrote);
 
   void reset() { _buffer = 0; _bufferedCount = 0; }
 };
@@ -27,6 +28,7 @@ public:
 
   template <typename T>
   void prepareToEncode(T begin, T end);
+  const FrequencyTable & getFrequencyTable() const;
   const HaffmanTree & getHaffmanTree() const;
 
   template <typename T>
@@ -40,14 +42,20 @@ public:
   bool encode(WriteTreeCodeState & state, const TreeCode & treeCode, VecByte & buffer);
 
   template <typename T>
-  void write(T value, VecByte & buffer);
+  void write( const T & value, VecByte & buffer);
 
 private:
   FrequencyTable _freqTable;
-  HaffmanTree _haffmanTree;
-  WriteTreeCodeState _writeCodeState;
   uint _wroteSize = 0;
 };
+
+template<typename T>
+void HaffmanEncoderImpl::write(const T & value, VecByte & buffer) {
+  size_t oldSize = buffer.size();
+  buffer.resize(oldSize + sizeof(T));
+  *reinterpret_cast<T *>(&buffer[oldSize]) = value;
+  _wroteSize += sizeof(T);
+}
 
 template<typename T>
 bool HaffmanEncoderImpl::encodeBlock(T begin, T end, VecByte & buffer) {
@@ -66,16 +74,17 @@ template <typename T>
 void HaffmanEncoderImpl::prepareToEncode(T begin, T end) {
   _freqTable.reset();
   _freqTable.takeFrequency(begin, end);
-  _haffmanTree = _freqTable.getHaffmanTree();
+  _freqTable.buildTree();
 }
 
 template <typename T>
 bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
   WriteTreeCodeState encPayloadState;
   uint baseBuffSize = buffer.size();
-  write((uint)std::distance(begin, end), buffer); //write size
+  uint blockSize = (uint)std::distance(begin, end);
+  write(blockSize, buffer); //write size
   for (auto i = begin; i != end; ++i) {
-    const TreeCode & code = _haffmanTree.getCode(*i);
+    const TreeCode & code = _freqTable.getHaffmanTree().getCode((byte)*i);
     if (code._size == 0)
       return LOG(DBGERR) << "encoding not processed in HaffmanTree value: '" << *i << "'";
     encode(encPayloadState, code, buffer);

@@ -4,21 +4,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 #include <array>
 #include "CommonTypes.h"
+#include "TreeCode.h"
 //----------------------------------------------------------------------------------------------------------------------
 namespace HaffmanImpl
 {
-//----------------------------------------------------------------------------------------------------------------------
-struct TreeCode
-{
-  byte _base = 0;
-  int _size = 0;
-  TreeCode() = default;
-  TreeCode(byte base, int size);
-  TreeCode(const TreeCode &);
-  TreeCode getCodeToTheLeft() const;
-  TreeCode getCodeToTheRight() const;
-  bool operator==(const TreeCode & right) const;
-};
 //----------------------------------------------------------------------------------------------------------------------
 typedef std::vector<TreeCode> VecTreeCode;
 //----------------------------------------------------------------------------------------------------------------------
@@ -31,7 +20,7 @@ public:
 
   enum class Type
   {
-    Leafe,
+    Leaf,
     Join
   };
 
@@ -57,13 +46,13 @@ class LeafNode : public TreeNode
 {
 public:
   ~LeafNode() override = default;
-  LeafNode(byte sym, long freq) : TreeNode(Type::Leafe, freq), _sym(sym) {}
+  LeafNode(byte sym, long freq) : TreeNode(Type::Leaf, freq), _sym(sym) {}
   LeafNode() : LeafNode(0, 0) {}
   std::string toString() const override;
   const TreeCode & getCode() const;
   const byte getSym() const;
+  void setCode(const TreeCode & code) override;
   void setSym(byte sym);
-private:
   byte _sym = 0;
 };
 //----------------------------------------------------------------------------------------------------------------------
@@ -97,24 +86,27 @@ class HaffmanTree
 public:
   HaffmanTree();
   explicit HaffmanTree(const VecFreqItem & vecFreqItem);
-  HaffmanTree(HaffmanTree && haffmanTree) noexcept;
-  HaffmanTree & operator=(HaffmanTree && haffmanTree) noexcept;
+  HaffmanTree(HaffmanTree && haffmanTree) noexcept = delete;
+  HaffmanTree & operator=(HaffmanTree && haffmanTree) noexcept = delete;
   HaffmanTree(const HaffmanTree &) = delete;
   HaffmanTree & operator=(const  HaffmanTree &) = delete;
 
   ~HaffmanTree();
   JoinNode * getTop() const;
   std::string toString() const;
+  void printCodes() const;
   const TreeCode & getCode(byte sym) const;
+  void resetFrom(const VecFreqItem & vecFreqItem);
+  void reset();
 
 private:
   void buildFrom(const VecFreqItem & vecFreqItem);
   void updateCachedCodes(TreeNode *);
   void indexTree();
-  void reset();
 
   JoinNode * _top = nullptr;
   std::array<LeafNode *, 256> _rawLeafNodes;
+
 };
 //----------------------------------------------------------------------------------------------------------------------
 }

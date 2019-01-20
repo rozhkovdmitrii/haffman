@@ -27,23 +27,17 @@ const std::string & FileEncoder::getIfPath() const {
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::isReadyToEncode() const {
   if (!_ifstream.good())
-  {
-    std::cerr << "Input file is not good: " << _ifPath;
-    return false;
-  }
+    return LOG(APPERR) << "Input file is not good: " << _ifPath;
 
   if (!_ofstream.good())
-  {
-    std::cerr << "Out file is not good: " << _ofPath;
-    return false;
-  };
+    return LOG(APPERR) << "Out file is not good: " << _ofPath;
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeMagicNum() {
-  static const unsigned long long magicNum = 0xFEDCBA98FEDCBA98;
-  if (!_ofstream.write(reinterpret_cast<const char *>(&magicNum), sizeof(unsigned long long)))
+  if (!_ofstream.write(reinterpret_cast<const char *>(&HaffmanImpl::MagicNum), sizeof(unsigned long long)))
     return LOG(DBGERR) << strerror(errno);
+  _ofstream.flush();
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -54,6 +48,8 @@ bool FileEncoder::encodeBlocksCount() {
   _blocksCount = std::ceil((double)inFileSize / BlockSize);
   if (!_ofstream.write(reinterpret_cast<const char *>(&_blocksCount), sizeof(_blocksCount)))
     return LOG(DBGERR) << strerror(errno);
+  _ofstream.flush();
+  LOG(DBGINF) << "Blocks count: " << _blocksCount;
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -73,21 +69,22 @@ bool FileEncoder::getInStreamSize(size_t & size) {
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeBlocks() {
-  auto blocksCount = _blocksCount;
-  while (blocksCount--) {
-    if (!encodeBlock())
-      return LOG(DBGERR) << "Encoding next block failed: " << blocksCount + 1;
+  int num = 0;
+  while (auto len = _ifstream.readsome((char *)_buffer.begin(), BlockSize)) {
+    encodeBlock((char *)_buffer.data(), (char *)_buffer.data() + len);
+    num++;
+    LOG(DBGINF) << "Block encoded :" << num;
   }
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
-bool FileEncoder::encodeBlock() {
-  auto readedSize = _ifstream.readsome(_buffer.data(), _buffer.size());
+bool FileEncoder::encodeBlock(char * from, char * to) {
   VecByte encBuf;
-  if (!_haffmanEncoder.encodeBlock(_buffer.begin(), _buffer.begin() + readedSize, encBuf))
+  if (!_haffmanEncoder.encodeBlock(from, to, encBuf))
     return LOG(DBGERR) << "Encoding block failed";
   if (!_ofstream.write(reinterpret_cast<const char *>(encBuf.data()), encBuf.size()))
     return LOG(DBGERR) << "Writing encoded block failed";
+  _ofstream.flush();
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------

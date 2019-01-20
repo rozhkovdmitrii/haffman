@@ -57,7 +57,8 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   const std::string seq2 = "oop beer!";
   _frequencyTable.takeFrequency(seq1.cbegin(), seq1.cend());
   _frequencyTable.takeFrequency(seq2.cbegin(), seq2.cend());
-  HaffmanTree haffmanTree = _frequencyTable.getHaffmanTree();
+  _frequencyTable.buildTree();
+  const HaffmanTree & haffmanTree = _frequencyTable.getHaffmanTree();
 
   ASSERT_NE(nullptr, haffmanTree.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree.getTop()->getType());
@@ -70,7 +71,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
 
   LeafNode * p00 = dynamic_cast<LeafNode *>(p0->getLeft());
   ASSERT_NE(nullptr, p00);
-  EXPECT_EQ(TreeNode::Type::Leafe, p00->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p00->getType());
   EXPECT_EQ('b', p00->getSym());
 
   JoinNode * p01 = dynamic_cast<JoinNode *>(p0->getRight());
@@ -79,7 +80,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
 
   LeafNode * p011 = dynamic_cast<LeafNode *>(p01->getRight());
   ASSERT_NE(nullptr, p011);
-  EXPECT_EQ(TreeNode::Type::Leafe, p011->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p011->getType());
   EXPECT_EQ('p', p011->getSym());
 
   JoinNode * p010 = dynamic_cast<JoinNode *>(p01->getLeft());
@@ -87,12 +88,12 @@ TEST_F(EncodingTests, EncodingTests_Test) {
 
   LeafNode * p0100 = dynamic_cast<LeafNode *>(p010->getLeft());
   ASSERT_NE(nullptr, p0100);
-  EXPECT_EQ(TreeNode::Type::Leafe, p0100->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p0100->getType());
   EXPECT_EQ('r', p0100->getSym());
 
   LeafNode * p0101 = dynamic_cast<LeafNode *>(p010->getRight());
   ASSERT_NE(nullptr, p0101);
-  EXPECT_EQ(TreeNode::Type::Leafe, p0101->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p0101->getType());
   EXPECT_EQ('!', p0101->getSym());
 
   JoinNode * p1 = dynamic_cast<JoinNode *>(haffmanTree.getTop()->getRight());
@@ -100,7 +101,7 @@ TEST_F(EncodingTests, EncodingTests_Test) {
 
   LeafNode * p10 = dynamic_cast<LeafNode *>(p1->getLeft());
   ASSERT_NE(nullptr, p10);
-  EXPECT_EQ(TreeNode::Type::Leafe, p10->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p10->getType());
   EXPECT_EQ('e', p10->getSym());
 
   JoinNode * p11 = dynamic_cast<JoinNode *>(p1->getRight());
@@ -108,12 +109,12 @@ TEST_F(EncodingTests, EncodingTests_Test) {
   
   LeafNode * p111 = dynamic_cast<LeafNode *>(p11->getRight());
   ASSERT_NE(nullptr, p111);
-  EXPECT_EQ(TreeNode::Type::Leafe, p111->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p111->getType());
   EXPECT_EQ('o', p111->getSym());
 
   LeafNode * p110 = dynamic_cast<LeafNode *>(p11->getLeft());
   ASSERT_NE(nullptr, p110);
-  EXPECT_EQ(TreeNode::Type::Leafe, p110->getType());
+  EXPECT_EQ(TreeNode::Type::Leaf, p110->getType());
   EXPECT_EQ(' ', p110->getSym());
 }
 
@@ -143,8 +144,8 @@ TEST_F(EncodingTests, FrequencyTable_TreeCodeTest_Test) {
 TEST_F(EncodingTests, EncodingTests_TreeReadingPossibleAfterReseting_Test) {
   const std::string seq = "beep boop beer!";
   _frequencyTable.takeFrequency(seq.cbegin(), seq.cend());
-
-  HaffmanTree haffmanTree = _frequencyTable.getHaffmanTree();
+  _frequencyTable.buildTree();
+  const HaffmanTree & haffmanTree = _frequencyTable.getHaffmanTree();
   EXPECT_NE(nullptr, haffmanTree.getTop());
 
   EXPECT_EQ(TreeCode({0, 0}), haffmanTree.getCode('z'));
@@ -158,8 +159,8 @@ TEST_F(EncodingTests, EncodingTests_TreeReadingPossibleAfterReseting_Test) {
   auto size = strlen(seq2.c_str());
   _frequencyTable.reset();
   _frequencyTable.takeFrequency(seq2.cbegin(), seq2.cend());
-
-  HaffmanTree haffmanTree1 = _frequencyTable.getHaffmanTree();
+  _frequencyTable.buildTree();
+  const HaffmanTree & haffmanTree1 = _frequencyTable.getHaffmanTree();
   ASSERT_NE(nullptr, haffmanTree1.getTop());
   EXPECT_EQ(TreeNode::Type ::Join, haffmanTree1.getTop()->getType());
   EXPECT_EQ(14, haffmanTree1.getTop()->getFreq());
@@ -168,16 +169,16 @@ TEST_F(EncodingTests, EncodingTests_TreeReadingPossibleAfterReseting_Test) {
 
 TEST_F(EncodingTests, EncodeFreqItemTest)
 {
+/*  VecByte buffer;
   FreqItem eItem({'e', 0xFF000000});
-  FreqItem fItem({'f', 0x01000000});
+  _encoder.encode(eItem, buffer);
+
   VecByte expected = {
     0x65, 0x00, 0x00, 0x00, 0xFF
   };
-  VecByte fbuffer, ebuffer;
 
-  _encoder.encode(fItem, fbuffer);
-  _encoder.encode(eItem, ebuffer);
-  EXPECT_EQ(expected, ebuffer);
+  _encoder.encode(eItem, buffer);
+  EXPECT_EQ(expected, buffer);*/
 }
 
 
@@ -198,87 +199,87 @@ TEST_F(EncodingTests, EncodingTreeCodesTest)
 
   WriteTreeCodeState treeCodeBuff;
 
-  byte toBeWrote = 0;
+  unsigned short toBeWrote = 0;
   ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
   EXPECT_EQ(0, toBeWrote);
   EXPECT_EQ(0x00, treeCodeBuff._buffer);
   EXPECT_EQ(2, treeCodeBuff._bufferedCount);
   ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
   EXPECT_EQ(0, toBeWrote);
-  EXPECT_EQ(0x20, treeCodeBuff._buffer);
+  EXPECT_EQ(0x2000, treeCodeBuff._buffer);
   EXPECT_EQ(4, treeCodeBuff._bufferedCount);
   ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
   EXPECT_EQ(0, toBeWrote);
-  EXPECT_EQ(0x28, treeCodeBuff._buffer);
+  EXPECT_EQ(0x2800, treeCodeBuff._buffer);
   EXPECT_EQ(6, treeCodeBuff._bufferedCount);
-  ASSERT_EQ(true, treeCodeBuff.emplace(p, toBeWrote));
-  EXPECT_EQ(0x29, toBeWrote);
-  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  ASSERT_EQ(false, treeCodeBuff.emplace(p, toBeWrote));
+  EXPECT_EQ(0, toBeWrote);
+  EXPECT_EQ(0x2980, treeCodeBuff._buffer);
   toBeWrote = 0;
 
-  EXPECT_EQ(1, treeCodeBuff._bufferedCount);
+
   ASSERT_EQ(false, treeCodeBuff.emplace(space, toBeWrote));
   EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0xE0, treeCodeBuff._buffer);
-  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+  EXPECT_EQ(0x29E0, treeCodeBuff._buffer);
+  EXPECT_EQ(12, treeCodeBuff._bufferedCount);
   ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
   EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0xE0, treeCodeBuff._buffer);
-  EXPECT_EQ(6, treeCodeBuff._bufferedCount);
+  EXPECT_EQ(0x29E0, treeCodeBuff._buffer);
+  EXPECT_EQ(14, treeCodeBuff._bufferedCount);
   ASSERT_EQ(true, treeCodeBuff.emplace(o, toBeWrote));
-  EXPECT_EQ(0xE3, toBeWrote);
-  EXPECT_EQ(0x80, treeCodeBuff._buffer);
+  EXPECT_EQ(0x29E3, toBeWrote);
+  EXPECT_EQ(0x8000, treeCodeBuff._buffer);
   EXPECT_EQ(1, treeCodeBuff._bufferedCount);
   toBeWrote = 0;
 
   ASSERT_EQ(false, treeCodeBuff.emplace(o, toBeWrote));
-  EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0xF0, treeCodeBuff._buffer);
+  EXPECT_EQ(0x000, toBeWrote);
+  EXPECT_EQ(0xF000, treeCodeBuff._buffer);
   EXPECT_EQ(4, treeCodeBuff._bufferedCount);
 
   ASSERT_EQ(false, treeCodeBuff.emplace(p, toBeWrote));
-  EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0xF6, treeCodeBuff._buffer);
+  EXPECT_EQ(0x0000, toBeWrote);
+  EXPECT_EQ(0xF600, treeCodeBuff._buffer);
   EXPECT_EQ(7, treeCodeBuff._bufferedCount);
 
-  ASSERT_EQ(true, treeCodeBuff.emplace(space, toBeWrote));
-  EXPECT_EQ(0xF7, toBeWrote);
-  EXPECT_EQ(0x80, treeCodeBuff._buffer);
-  EXPECT_EQ(2, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(space, toBeWrote));
+  EXPECT_EQ(0, toBeWrote);
+  EXPECT_EQ(0xF780, treeCodeBuff._buffer);
+  EXPECT_EQ(10, treeCodeBuff._bufferedCount);
   toBeWrote = 0;
 
   ASSERT_EQ(false, treeCodeBuff.emplace(b, toBeWrote));
-  EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0x80, treeCodeBuff._buffer);
-  EXPECT_EQ(4, treeCodeBuff._bufferedCount);
+  EXPECT_EQ(0x0000, toBeWrote);
+  EXPECT_EQ(0xF780, treeCodeBuff._buffer);
+  EXPECT_EQ(12, treeCodeBuff._bufferedCount);
 
   ASSERT_EQ(false, treeCodeBuff.emplace(e, toBeWrote));
   EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0x88, treeCodeBuff._buffer);
-  EXPECT_EQ(6, treeCodeBuff._bufferedCount);
+  EXPECT_EQ(0xF788, treeCodeBuff._buffer);
+  EXPECT_EQ(14, treeCodeBuff._bufferedCount);
 
   ASSERT_EQ(true, treeCodeBuff.emplace(e, toBeWrote));
-  EXPECT_EQ(0x8A, toBeWrote);
-  EXPECT_EQ(0x00, treeCodeBuff._buffer);
+  EXPECT_EQ(0xF78A, toBeWrote);
+  EXPECT_EQ(0, treeCodeBuff._buffer);
   EXPECT_EQ(0, treeCodeBuff._bufferedCount);
   toBeWrote = 0;
 
   ASSERT_EQ(false, treeCodeBuff.emplace(r, toBeWrote));
   EXPECT_EQ(0x00, toBeWrote);
-  EXPECT_EQ(0x40, treeCodeBuff._buffer);
+  EXPECT_EQ(0x4000, treeCodeBuff._buffer);
   EXPECT_EQ(4, treeCodeBuff._bufferedCount);
 
-  ASSERT_EQ(true, treeCodeBuff.emplace(shout, toBeWrote));
-  EXPECT_EQ(0x45, toBeWrote);
-  EXPECT_EQ(0x00, treeCodeBuff._buffer);
-  EXPECT_EQ(0, treeCodeBuff._bufferedCount);
+  ASSERT_EQ(false, treeCodeBuff.emplace(shout, toBeWrote));
+  EXPECT_EQ(0x00, toBeWrote);
+  EXPECT_EQ(0x4500, treeCodeBuff._buffer);
+  EXPECT_EQ(8, treeCodeBuff._bufferedCount);
   toBeWrote = 0;
 
   VecTreeCode vecTreeCode { b, e, e, p, space,  b, o, o, p, space, b, e, e, r, shout };
 
   VecByte expected {
     0x0F, 0x00, 0x00, 0x00,        // size
-    0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
+    0xE3, 0x29, 0x8A, 0xF7, 0x00, 0x45   // payload
   };
   VecByte buffer;
   ASSERT_TRUE(_encoder.encodePayload(str.begin(), str.end(), buffer));
@@ -288,7 +289,7 @@ TEST_F(EncodingTests, EncodingTreeCodesTest)
 TEST_F(EncodingTests, TestEncoding)
 {
   VecByte expected = {
-    0x07,                         //size of frequency pack
+    0x07, 0x00,                         //size of frequency pack
     ' ', 0x02, 0x00, 0x00, 0x00,
     '!', 0x01, 0x00, 0x00, 0x00,
     'b', 0x03, 0x00, 0x00, 0x00,
@@ -297,7 +298,7 @@ TEST_F(EncodingTests, TestEncoding)
     'p', 0x02, 0x00, 0x00, 0x00,
     'r', 0x01, 0x00, 0x00, 0x00,
     0x0F, 0x00, 0x00, 0x00,        // size
-    0x29, 0xE3, 0xF7, 0x8A, 0x45   // payload
+    0xE3, 0x29, 0x8A, 0xF7, 0x00, 0x45   // payload
   };
 
   HaffmanEncoderImpl encoder;
@@ -307,10 +308,10 @@ TEST_F(EncodingTests, TestEncoding)
   EXPECT_EQ(expected, buffer);
 
   VecByte expectedTwoEmpty = {
-    0x00,
+    0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,
 
-    0x00,
+    0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,
   };
   buffer.clear();

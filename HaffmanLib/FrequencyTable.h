@@ -21,18 +21,25 @@ public:
   VecFreqItem getFreqPack() const;
   uint getFrequencyOf(byte symb) const;
   void setFrequencyOf(byte symb, uint freq);
-  HaffmanTree getHaffmanTree() const;
+  const HaffmanTree & getHaffmanTree() const;
   void reset();
+  void buildTree();
 
 private:
+  HaffmanTree _haffmanTree;
   ArrUInt256 _rawFreqBuf;
+
+
 };
 
 template<typename T>
 void FrequencyTable::takeFrequency(T from, T to) {
   for (auto it = from; it != to; ++it)
-    ++_rawFreqBuf[*it];
+    ++_rawFreqBuf[(byte)*it];
+
 }
+
+
 
 }
 #endif //HAFFMAN_FREQUENCYTABLE_H

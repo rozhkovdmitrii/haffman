@@ -3,5 +3,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 bool Log::_isAppErrEnabled = true;
 bool Log::_isAppInfEnabled = true;
-bool Log::_isDbgErrEnabled = false;
+bool Log::_isDbgErrEnabled = true;
+bool Log::_isDbgInfEnabled = true;
 //----------------------------------------------------------------------------------------------------------------------

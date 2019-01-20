@@ -52,7 +52,7 @@ bool JoinNode::setRight(TreeNode * node)
 //----------------------------------------------------------------------------------------------------------------------
 void JoinNode::setCode(const TreeCode & code)
 {
-  TreeNode::setCode(code);
+  _code = code;
   if (_left)
     _left->setCode(_code.getCodeToTheLeft());
   if (_right)
@@ -104,27 +104,7 @@ void TreeNode::setFreq(uint freq)
   _freq = freq;
 }
 //----------------------------------------------------------------------------------------------------------------------
-TreeCode::TreeCode(byte base, int size) : _base(base), _size(size) {}
-TreeCode::TreeCode(const TreeCode & code) : TreeCode(code._base, code._size) {}
-//----------------------------------------------------------------------------------------------------------------------
-TreeCode TreeCode::getCodeToTheRight() const {
-  TreeCode codeToTheRight(*this);
-  codeToTheRight._base <<= 1;
-  codeToTheRight._base |= 1;
-  ++codeToTheRight._size;
-  return codeToTheRight;
-}
-//----------------------------------------------------------------------------------------------------------------------
-TreeCode TreeCode::getCodeToTheLeft() const {
-  TreeCode codeToTheLeft(*this);
-  codeToTheLeft._base <<= 1;
-  ++codeToTheLeft._size;
-  return codeToTheLeft;
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool TreeCode::operator==(const TreeCode & right) const {
-  return _size == right._size && _base == right._base;
-}
+
 //----------------------------------------------------------------------------------------------------------------------
 void TreeNode::setCode(const TreeCode & code) {
   _code = code;
@@ -132,7 +112,7 @@ void TreeNode::setCode(const TreeCode & code) {
 //----------------------------------------------------------------------------------------------------------------------
 std::string LeafNode::toString() const {
   std::ostringstream ostream;
-  ostream << "(" << _sym << _freq << ")";
+  ostream << "(" << _sym << _freq << ":";
   return ostream.str();
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -147,13 +127,23 @@ const byte LeafNode::getSym() const {
 void LeafNode::setSym(byte sym) {
   _sym = sym;
 }
+
+void LeafNode::setCode(const TreeCode & code) {
+  _code = code;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
 
+  resetFrom(vecFreqItem);
+}
+
+void HaffmanTree::resetFrom(const VecFreqItem & vecFreqItem) {
   buildFrom(vecFreqItem);
   updateCachedCodes(_top);
   indexTree();
 }
+
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::~HaffmanTree() {
   delete _top;
@@ -214,8 +204,6 @@ void HaffmanTree::indexTree() {
 //----------------------------------------------------------------------------------------------------------------------
 void HaffmanTree::reset() {
   std::fill(_rawLeafNodes.begin(), _rawLeafNodes.end(), nullptr);
-  if (_top == nullptr)
-    return;
   delete _top;
   _top = nullptr;
 }
@@ -230,25 +218,23 @@ std::string HaffmanTree::toString() const {
 //----------------------------------------------------------------------------------------------------------------------
 const TreeCode & HaffmanTree::getCode(byte sym) const {
   const static TreeCode empty;
-  return _rawLeafNodes[sym] == nullptr ? empty : _rawLeafNodes[sym]->getCode();
+  if (_rawLeafNodes[sym] == nullptr)
+  {
+    LOG(DBGERR) << "Getting code fo sym '" << sym << "' failed";
+    return empty;
+  }
+  return _rawLeafNodes[sym]->getCode();
 }
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::HaffmanTree() : _top(nullptr) {}
-//----------------------------------------------------------------------------------------------------------------------
-HaffmanTree::HaffmanTree(HaffmanTree && haffmanTree) noexcept {
-  reset();
-  _top = haffmanTree._top;
-  updateCachedCodes(_top);
-  haffmanTree._top = nullptr;
-  std::copy(haffmanTree._rawLeafNodes.begin(), haffmanTree._rawLeafNodes.end(), _rawLeafNodes.begin());
-}
-//----------------------------------------------------------------------------------------------------------------------
-HaffmanTree & HaffmanTree::operator=(HaffmanTree && haffmanTree) noexcept {
-  reset();
-  _top = haffmanTree._top;
-  updateCachedCodes(_top);
-  haffmanTree._top = nullptr;
-  return *this;
+
+void HaffmanTree::printCodes() const {
+  for (auto ptr : _rawLeafNodes) {
+    if (!ptr)
+      continue;
+    std::cout << std::hex << ptr->getSym(); ptr->getCode().print();
+    std::cout << std::endl;
+  }
 }
 //----------------------------------------------------------------------------------------------------------------------
 std::ostream & operator<<(std::ostream & os, const TreeCode & treeCode) {

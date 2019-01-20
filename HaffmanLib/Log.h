@@ -9,6 +9,7 @@ class Log {
 public:
   enum class Type {
     DBGERR,
+    DBGINF,
     APPERR,
     APPINF
   };
@@ -26,6 +27,9 @@ public:
       break;
     case Type::APPINF:
       if (_isAppInfEnabled) std::cout << "APPINF: " << _oss.str() << std::endl;
+      break;
+    case Type::DBGINF:
+      if (_isDbgInfEnabled) std::cout << "DBGINF: " << _oss.str() << std::endl;
 
     }
   }
@@ -41,6 +45,9 @@ public:
       break;
     case Type::APPINF:
       _isAppInfEnabled = enabled;
+      break;
+    case Type::DBGINF:
+      _isDbgInfEnabled = enabled;
       break;
     }
   }
@@ -60,6 +67,7 @@ private:
   static bool _isAppErrEnabled;
   static bool _isDbgErrEnabled;
   static bool _isAppInfEnabled;
+  static bool _isDbgInfEnabled;
   Type _type;
   std::ostringstream _oss;
 

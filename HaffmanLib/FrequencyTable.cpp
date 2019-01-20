@@ -13,14 +13,12 @@ FrequencyTable::FrequencyTable() {
 }
 
 void FrequencyTable::reset() {
+  _haffmanTree.reset();
   std::fill(_rawFreqBuf.begin(), _rawFreqBuf.end(), 0);
 }
 
-HaffmanTree FrequencyTable::getHaffmanTree() const {
-  VecFreqItem vecFreqItem;
-  for (int i = 0; i < _rawFreqBuf.size(); ++i)
-    if (_rawFreqBuf[i] != 0) vecFreqItem.emplace_back((byte)i, _rawFreqBuf[i]);
-  return HaffmanTree(vecFreqItem);
+const HaffmanTree & FrequencyTable::getHaffmanTree() const {
+  return _haffmanTree;
 }
 
 VecFreqItem FrequencyTable::getFreqPack() const { //TODO: optimize
@@ -37,6 +35,15 @@ VecFreqItem FrequencyTable::getFreqPack() const { //TODO: optimize
 
 void FrequencyTable::setFrequencyOf(byte symb, uint freq) {
   _rawFreqBuf[symb] = freq;
+}
+
+void FrequencyTable::buildTree() {
+  VecFreqItem vecFreqItem;
+  for (int i = 0; i < _rawFreqBuf.size(); ++i) {
+    if (_rawFreqBuf[i] != 0)
+      vecFreqItem.emplace_back((byte) i, _rawFreqBuf[i]);
+  }
+  _haffmanTree.resetFrom(vecFreqItem);
 }
 
 }
