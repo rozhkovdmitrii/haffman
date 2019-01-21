@@ -1,7 +1,8 @@
+#include <fstream>
+
 #include <HaffmanEncoderImpl.h>
 #include "gtest/gtest.h"
 #include "HaffmanDecoderImpl.h"
-#include <fstream>
 
 using namespace HaffmanImpl;
 
@@ -52,17 +53,6 @@ TEST_F(DecodingTests, DecodeFrequencyTableTest)
   EXPECT_EQ(2, freqTable.getFrequencyOf('o'));
   EXPECT_EQ(2, freqTable.getFrequencyOf('p'));
   EXPECT_EQ(1, freqTable.getFrequencyOf('r'));
-/*  HaffmanTree haffmanTree = _decoder.getFrequencyTable().getHaffmanTree();
-
-  EXPECT_EQ(TreeCode({0, 0}), haffmanTree.getCode('v'));
-  EXPECT_EQ(TreeCode({4, 4}), haffmanTree.getCode('r'));
-  EXPECT_EQ(TreeCode({5, 4}), haffmanTree.getCode('!'));
-  EXPECT_EQ(TreeCode({0, 2}), haffmanTree.getCode('b'));
-  EXPECT_EQ(TreeCode({6, 3}), haffmanTree.getCode(' '));
-  EXPECT_EQ(TreeCode({7, 3}), haffmanTree.getCode('o'));
-  EXPECT_EQ(TreeCode({3, 3}), haffmanTree.getCode('p'));
-  EXPECT_EQ(TreeCode({2, 2}), haffmanTree.getCode('e'));*/
-
 }
 
 TEST_F(DecodingTests, DecodeSequence)

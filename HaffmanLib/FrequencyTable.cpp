@@ -4,7 +4,7 @@
 namespace HaffmanImpl
 {
 
-unsigned int FrequencyTable::getFrequencyOf(byte symb) const {
+uint FrequencyTable::getFrequencyOf(byte symb) const {
   return _rawFreqBuf[symb];
 }
 

@@ -1,14 +1,26 @@
+//----------------------------------------------------------------------------------------------------------------------
 #include "HaffmanDecoderImpl.h"
-
+//----------------------------------------------------------------------------------------------------------------------
 namespace HaffmanImpl
 {
+//----------------------------------------------------------------------------------------------------------------------
+class DecTreeCodeState {
+public:
+  DecTreeCodeState(uint encBytesCount, TreeNode * top);
+  bool addBitAndTryToDecode(bool bit, byte & sym);
 
+private:
+  TreeNode * _top;
+  TreeNode * _pos;
+  const uint _encBytesCount;
+  byte _padding;
+};
+//----------------------------------------------------------------------------------------------------------------------
 HaffmanImpl::HaffmanDecoderImpl::HaffmanDecoderImpl() :
   _dataIndex(0),
   _dataLength(0),
   _state(State::BlocksCountReading) {}
-
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::processState(VecByte & buffer) {
 
   switch (_state) {
@@ -25,7 +37,7 @@ bool HaffmanDecoderImpl::processState(VecByte & buffer) {
     return false;
   }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeHead() {
   auto dataLength = _dataLength;
   auto dataIndex = _dataIndex;
@@ -39,21 +51,21 @@ bool HaffmanDecoderImpl::decodeHead() {
   _freqTable.buildTree();
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::processStateBlocksCountReading() {
   if (!decodeBlocksCount())
     return false;
   _state = State::HeadReading;
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeBlocksCount() {
   if (!read(_blocksCount))
     return LOG(DBGERR) << "Blocks count reading failed";
   LOG(DBGINF) << "Blocks count readed: " << _blocksCount;
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeFrequencyTableImpl() {
   ushort size;
   if (_data.empty())
@@ -73,7 +85,7 @@ bool HaffmanDecoderImpl::decodeFrequencyTableImpl() {
   _freqTable.buildTree();
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeFrequencyItem(FreqItem & freqItem) {
   if (!read(freqItem._sym))
     return LOG(DBGERR) << "can not read FreqItem._sym";
@@ -81,20 +93,12 @@ bool HaffmanDecoderImpl::decodeFrequencyItem(FreqItem & freqItem) {
     return LOG(DBGERR) << "can not read FreqItem._freq";
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 const FrequencyTable & HaffmanDecoderImpl::getFrequencyTable() const {
   return _freqTable;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodePayload(VecByte & buffer) {
-  if (!decodePayloadImpl(buffer)) {
-    return false;
-  }
-  return true;
-}
-
-bool HaffmanDecoderImpl::decodePayloadImpl(VecByte & buffer) {
-
   const HaffmanTree & haffmanTree = _freqTable.getHaffmanTree();
 
   uint encBytesCount;
@@ -107,7 +111,7 @@ bool HaffmanDecoderImpl::decodePayloadImpl(VecByte & buffer) {
   uint decrypedCount = 0;
   while (decrypedCount < encBytesCount) {
     if (!read(encByte))
-        return LOG(DBGERR) << "read next payload byte failed";
+      return LOG(DBGERR) << "read next payload byte failed";
     for (int i = 0; i < 16 && decrypedCount < encBytesCount; ++i) { // TODO: relate to EncodeState
       byte decByte;
       if (decodeState.addBitAndTryToDecode(encByte & 1 << 15 - i, decByte)) {
@@ -130,24 +134,24 @@ bool HaffmanDecoderImpl::processStateHeadReading() {
   _state = State::PayloadReading;
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::processStatePayloadReading(VecByte & buffer) {
   if (!decodePayload(buffer))
     return false;
-  LOG(DBGINF) << "Block decoded, left: " << _blocksCount;
+  LOG(APPINF) << "Next block decoded, left: " << _blocksCount;
   --_blocksCount;
   _state = _blocksCount == 0 ? State::Finished : State::HeadReading;
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 const bool HaffmanDecoderImpl::isFinished() const {
   return _state == State::Finished;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 const bool HaffmanDecoderImpl::isError() const {
   return _state == State::Error;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 bool DecTreeCodeState::addBitAndTryToDecode(bool bit, byte & sym) {
   JoinNode * pos = dynamic_cast<JoinNode *>(_pos);
   if (pos == nullptr)
@@ -164,11 +168,11 @@ bool DecTreeCodeState::addBitAndTryToDecode(bool bit, byte & sym) {
 
   return true;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 DecTreeCodeState::DecTreeCodeState(uint encBytesCount, TreeNode * top) :
   _top(top),
   _pos(top),
    _encBytesCount(encBytesCount)
 {};
-
+//----------------------------------------------------------------------------------------------------------------------
 }

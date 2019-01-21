@@ -1,24 +1,12 @@
 #ifndef HAFFMAN_HAFFMANDECODER_H
 #define HAFFMAN_HAFFMANDECODER_H
 
-#include "HaffmanTree.h"
 #include "FrequencyTable.h"
 #include "Log.h"
 
 namespace HaffmanImpl
 {
 
-class DecTreeCodeState {
-public:
-  DecTreeCodeState(uint encBytesCount, TreeNode * top);
-  bool addBitAndTryToDecode(bool bit, byte & sym);
-
-private:
-  TreeNode * _top;
-  TreeNode * _pos;
-  const uint _encBytesCount;
-  byte _padding;
-};
 
 
 class HaffmanDecoderImpl {
@@ -29,7 +17,7 @@ public:
   void addData(T begin, T end);
   template <typename T>
   bool addDataAndTryToDecode(T begin, T end, VecByte & buffer);
-  bool processState(VecByte & buffer);
+
   bool decodeHead();
   bool decodePayload(VecByte & buffer);
 
@@ -53,14 +41,16 @@ private:
     MaxUselessDataSize = 1024
   };
 
-  bool processStateBlocksCountReading();
-  bool processStateHeadReading();
-  bool processStatePayloadReading(VecByte & buffer);
+  bool processState(VecByte & buffer);
 
+  bool processStateBlocksCountReading();
   bool decodeBlocksCount();
-  bool decodeFrequencyTableImpl();
+
+  bool processStateHeadReading();
   bool decodeFrequencyItem(FreqItem & freqItem);
-  bool decodePayloadImpl(VecByte & buffer);
+  bool decodeFrequencyTableImpl();
+
+  bool processStatePayloadReading(VecByte & buffer);
 
   void clearUselessData();
 
@@ -101,10 +91,8 @@ bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer)
 
   }
 
-/*
   if (_dataIndex > MaxUselessDataSize)
     clearUselessData();
-*/
 
 
   return _state == State::Finished;
@@ -118,7 +106,6 @@ void HaffmanDecoderImpl::addData(T begin,T end) {
   _dataLength = _data.size() - _dataIndex;
 
 }
-
 
 }
 

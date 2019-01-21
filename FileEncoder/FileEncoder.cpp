@@ -73,7 +73,7 @@ bool FileEncoder::encodeBlocks() {
   while (auto len = _ifstream.readsome((char *)_buffer.begin(), BlockSize)) {
     encodeBlock((char *)_buffer.data(), (char *)_buffer.data() + len);
     num++;
-    LOG(DBGINF) << "Block encoded :" << num;
+    LOG(APPINF) << "Block:" << num << " encoded";
   }
   return true;
 }

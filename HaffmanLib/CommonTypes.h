@@ -13,9 +13,9 @@ namespace HaffmanImpl
 
 struct FreqItem {
   byte _sym;
-  unsigned int _freq;
+  uint _freq;
   FreqItem() : FreqItem(0, 0) {}
-  FreqItem(byte sym, unsigned int freq) : _sym(sym), _freq(freq) {}
+  FreqItem(byte sym, uint freq) : _sym(sym), _freq(freq) {}
   bool operator==(const FreqItem & freqItem) const {
     return _sym == freqItem._sym && _freq == freqItem._freq;
   }

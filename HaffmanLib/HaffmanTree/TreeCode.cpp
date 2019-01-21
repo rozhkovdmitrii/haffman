@@ -1,4 +1,9 @@
+//----------------------------------------------------------------------------------------------------------------------
+#include <iostream>
+#include <iomanip>
+//----------------------------------------------------------------------------------------------------------------------
 #include "TreeCode.h"
+//----------------------------------------------------------------------------------------------------------------------
 namespace HaffmanImpl
 {
 //----------------------------------------------------------------------------------------------------------------------
@@ -21,17 +26,26 @@ TreeCode TreeCode::getCodeToTheRight() const {
   return codeToTheRight;
 }
 //----------------------------------------------------------------------------------------------------------------------
-
 bool TreeCode::operator==(const TreeCode & right) const {
   return _size == right._size && _base == right._base;
 }
 //----------------------------------------------------------------------------------------------------------------------
-bool TreeCode::print() const {
-  for (int i = 0; i < _size; ++i) { // TODO: relate to EncodeState
-    int key = (_base >> (15 - i) & 1);
-    std::cout << key;
+bool WriteTreeCodeState::putAndCheckPossibleToWrite(const TreeCode & treeCode, ushort & toBeWrote) {
+  int rest = DigitCount - _bufferedCount;
+  if (rest > treeCode._size) {
+    ushort valToBuf = treeCode._base << rest - treeCode._size;
+    _buffer |= valToBuf;
+    _bufferedCount += treeCode._size;
+    return false;
   }
+  toBeWrote = _buffer | treeCode._base >> treeCode._size - rest;
+  _buffer = treeCode._base << DigitCount - treeCode._size + rest;
+  _bufferedCount = treeCode._size - rest;
+  return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
-
+std::ostream & operator<<(std::ostream & ostream, const TreeCode & code) {
+  ostream << "{" << std::hex << "0x" << std::setw(2) << std::setfill('0') << code._base << ":" << code._size << "}";
+  return ostream;
+}
 }

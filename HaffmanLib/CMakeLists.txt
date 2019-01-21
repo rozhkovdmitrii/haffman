@@ -1,8 +1,6 @@
 
 add_library(haffmanLib
   FrequencyTable.cpp
-  HaffmanTree.cpp
-  HaffmanTree.h
   HaffmanEncoderImpl.cpp
   HaffmanEncoderImpl.h
   HaffmanDecoderImpl.cpp
@@ -10,10 +8,14 @@ add_library(haffmanLib
   CommonTypes.h
   Log.h
   Log.cpp
-  TreeCode.h TreeCode.cpp)
+
+  HaffmanTree/HaffmanTree.cpp
+  HaffmanTree/HaffmanTree.h
+  HaffmanTree/TreeCode.h
+  HaffmanTree/TreeCode.cpp
+  HaffmanTree/TreeNode.cpp
+  HaffmanTree/TreeNode.h)
 
 target_include_directories(haffmanLib PRIVATE .)
 
-include_directories(.)
-
-add_subdirectory(test)
+include_directories(. HaffmanTree)

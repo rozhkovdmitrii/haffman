@@ -1,19 +1,15 @@
 //----------------------------------------------------------------------------------------------------------------------
-#include <iostream>
-#include "FileDecoder.h"
+#include "gtest/gtest.h"
+#include "Log.h"
+//----------------------------------------------------------------------------------------------------------------------
+#include "FrequencyTable.h"
 //----------------------------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
-  if (argc !=  3)
-    return LOG(APPERR) << "Should be 2 arguments. Passed: " << argc - 1;
-
   Log::setEnabled(Log::Type::DBGERR, false);
   Log::setEnabled(Log::Type::APPERR, true);
+  Log::setEnabled(Log::Type::APPINF, false);
 
-  Haffman::FileDecoder decoder(argv[1], argv[2]);
-  if (!decoder.decodeInputFile())
-    return 1;
-
-  LOG(APPINF) << "In file successfully decoded: \"" << decoder.getIfPath() << "\"";
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
 //----------------------------------------------------------------------------------------------------------------------

@@ -15,10 +15,8 @@ public:
   };
 
   Log(Type type) : _type(type) {};
-  ~Log()
-  {
-    switch (_type)
-    {
+  ~Log() {
+    switch (_type) {
     case Type::DBGERR:
       if (_isDbgErrEnabled) std::cerr << "DBGERR: " << _oss.str() << std::endl;
       break;
@@ -35,8 +33,7 @@ public:
   }
 
   static void setEnabled(Type type, bool enabled) {
-    switch (type)
-    {
+    switch (type) {
     case Type::DBGERR:
       _isDbgErrEnabled = enabled;
       break;
@@ -53,8 +50,7 @@ public:
   }
 
   template <typename T>
-  Log & operator<<(const T & value)
-  {
+  Log & operator<<(const T & value) {
     _oss << value;
     return *this;
   }
@@ -68,9 +64,9 @@ private:
   static bool _isDbgErrEnabled;
   static bool _isAppInfEnabled;
   static bool _isDbgInfEnabled;
+
   Type _type;
   std::ostringstream _oss;
-
 };
 //----------------------------------------------------------------------------------------------------------------------
 #define LOG(TYPE) Log(Log::Type::TYPE)
