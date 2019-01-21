@@ -9,12 +9,12 @@ add_library(haffmanLib
   Log.h
   Log.cpp
 
-  HaffmanTree/HaffmanTree.cpp
-  HaffmanTree/HaffmanTree.h
-  HaffmanTree/TreeCode.h
-  HaffmanTree/TreeCode.cpp
-  HaffmanTree/TreeNode.cpp
-  HaffmanTree/TreeNode.h)
+  HaffmanTree.cpp
+  HaffmanTree.h
+  TreeCode.h
+  TreeCode.cpp
+  TreeNode.cpp
+  TreeNode.h)
 
 target_include_directories(haffmanLib PRIVATE .)
 

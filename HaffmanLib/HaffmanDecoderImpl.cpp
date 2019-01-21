@@ -173,6 +173,6 @@ DecTreeCodeState::DecTreeCodeState(uint encBytesCount, TreeNode * top) :
   _top(top),
   _pos(top),
    _encBytesCount(encBytesCount)
-{};
+{}
 //----------------------------------------------------------------------------------------------------------------------
 }
