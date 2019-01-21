@@ -39,7 +39,7 @@ void FrequencyTable::setFrequencyOf(byte symb, uint freq) {
 
 void FrequencyTable::buildTree() {
   VecFreqItem vecFreqItem;
-  for (int i = 0; i < _rawFreqBuf.size(); ++i) {
+  for (uint i = 0; i < _rawFreqBuf.size(); ++i) {
     if (_rawFreqBuf[i] != 0)
       vecFreqItem.emplace_back((byte) i, _rawFreqBuf[i]);
   }

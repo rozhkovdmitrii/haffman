@@ -36,7 +36,7 @@ bool FileEncoder::isReadyToEncode() const {
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeMagicNum() {
   if (!_ofstream.write(reinterpret_cast<const char *>(&HaffmanImpl::MagicNum), sizeof(unsigned long long)))
-    return LOG(DBGERR) << strerror(errno);
+    return LOG(DBGERR) << "Writing magic number failed";
   _ofstream.flush();
   return true;
 }
@@ -45,9 +45,9 @@ bool FileEncoder::encodeBlocksCount() {
   size_t inFileSize;
   if (!getInStreamSize(inFileSize))
     return false;
-  _blocksCount = std::ceil((double)inFileSize / BlockSize);
+  _blocksCount = (uint)std::ceil((double)inFileSize / BlockSize);
   if (!_ofstream.write(reinterpret_cast<const char *>(&_blocksCount), sizeof(_blocksCount)))
-    return LOG(DBGERR) << strerror(errno);
+    return LOG(DBGERR) << "Writing blocks count failed";
   _ofstream.flush();
   LOG(DBGINF) << "Blocks count: " << _blocksCount;
   return true;
@@ -64,13 +64,13 @@ bool FileEncoder::getInStreamSize(size_t & size) {
   if (begPos == static_cast<const std::streamoff>(-1))
     return LOG(APPERR) << "Can't get file pos for: " << _ifPath;
 
-  size = endPos - begPos;
+  size = (size_t)(endPos - begPos);
   return true;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileEncoder::encodeBlocks() {
   int num = 0;
-  while (auto len = _ifstream.readsome((char *)_buffer.begin(), BlockSize)) {
+  while (auto len = _ifstream.readsome((char *)_buffer.data(), BlockSize)) {
     encodeBlock((char *)_buffer.data(), (char *)_buffer.data() + len);
     num++;
     LOG(APPINF) << "Block:" << num << " encoded";

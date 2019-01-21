@@ -39,7 +39,7 @@ bool FileDecoder::decodeBlocks() {
 
   while (!_haffmanDecoder.isFinished())
   {
-    uint readedCount = _ifstream.readsome(_buffer.data(), BlockSize);
+    uint readedCount = (uint) _ifstream.readsome(_buffer.data(), BlockSize);
     if (readedCount == 0)
       return LOG(APPERR) << "Reading next block failed, can not read more, but data expected";
 

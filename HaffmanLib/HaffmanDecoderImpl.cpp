@@ -36,6 +36,7 @@ bool HaffmanDecoderImpl::processState(VecByte & buffer) {
   case State::MagicNumReading:
     return false;
   }
+  return  false;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeHead() {
@@ -107,14 +108,15 @@ bool HaffmanDecoderImpl::decodePayload(VecByte & buffer) {
 
   DecTreeCodeState decodeState(encBytesCount, haffmanTree.getTop());
 
-  unsigned short encByte = 0;
+  ushort encByte = 0;
   uint decrypedCount = 0;
   while (decrypedCount < encBytesCount) {
     if (!read(encByte))
       return LOG(DBGERR) << "read next payload byte failed";
     for (int i = 0; i < 16 && decrypedCount < encBytesCount; ++i) { // TODO: relate to EncodeState
       byte decByte;
-      if (decodeState.addBitAndTryToDecode(encByte & 1 << 15 - i, decByte)) {
+      bool bit = (encByte & (1 << (15 - i))) == 0;
+      if (decodeState.addBitAndTryToDecode(bit, decByte)) {
         ++decrypedCount;
         buffer.push_back(decByte);
       }

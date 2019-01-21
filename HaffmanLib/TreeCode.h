@@ -27,7 +27,7 @@ struct WriteTreeCodeState {
   ushort _buffer = 0;
 
   enum {
-    DigitCount = sizeof(_buffer) * 8
+    DigitCount = sizeof(ushort)
   };
 
   byte _bufferedCount = 0;

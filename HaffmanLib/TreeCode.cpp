@@ -33,13 +33,13 @@ bool TreeCode::operator==(const TreeCode & right) const {
 bool WriteTreeCodeState::putAndCheckPossibleToWrite(const TreeCode & treeCode, ushort & toBeWrote) {
   int rest = DigitCount - _bufferedCount;
   if (rest > treeCode._size) {
-    ushort valToBuf = treeCode._base << rest - treeCode._size;
+    ushort valToBuf = treeCode._base << (rest - treeCode._size);
     _buffer |= valToBuf;
     _bufferedCount += treeCode._size;
     return false;
   }
-  toBeWrote = _buffer | treeCode._base >> treeCode._size - rest;
-  _buffer = treeCode._base << DigitCount - treeCode._size + rest;
+  toBeWrote = _buffer | treeCode._base >> (treeCode._size - rest);
+  _buffer = treeCode._base << (DigitCount - treeCode._size + rest);
   _bufferedCount = treeCode._size - rest;
   return true;
 }
