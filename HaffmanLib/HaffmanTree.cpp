@@ -10,16 +10,14 @@ namespace HaffmanImpl
 {
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
-
   resetFrom(vecFreqItem);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void HaffmanTree::resetFrom(const VecFreqItem & vecFreqItem) {
   buildFrom(vecFreqItem);
   updateCachedCodes(_top);
   indexTree();
 }
-
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::~HaffmanTree() {
   delete _top;
@@ -72,7 +70,6 @@ void HaffmanTree::updateCachedCodes(TreeNode * treeNode) {
 void HaffmanTree::indexTree() {
   if (!_top)
   {
-    std::cout << "EROOR: cannot index empty haffman tree." << std::endl;
     return;
   }
   _top->setCode(TreeCode());
@@ -103,7 +100,6 @@ const TreeCode & HaffmanTree::getCode(byte sym) const {
 }
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::HaffmanTree() : _top(nullptr) {}
-
 //----------------------------------------------------------------------------------------------------------------------
 }
 //----------------------------------------------------------------------------------------------------------------------
