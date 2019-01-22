@@ -29,7 +29,6 @@ public:
   const bool isError() const;
 private:
   enum class State {
-    MagicNumReading,
     BlocksCountReading,
     HeadReading,
     PayloadReading,

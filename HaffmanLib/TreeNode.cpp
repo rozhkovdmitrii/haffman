@@ -8,103 +8,16 @@
 namespace HaffmanImpl
 {
 //----------------------------------------------------------------------------------------------------------------------
-JoinNode::JoinNode(TreeNode * left, TreeNode * right) :
-  TreeNode(Type::Join),
-  _left(left), _right(right)
-{
-  calcFrequency();
-}
-//----------------------------------------------------------------------------------------------------------------------
-JoinNode::JoinNode() : JoinNode(nullptr, nullptr) {
-}
-//----------------------------------------------------------------------------------------------------------------------
-JoinNode::~JoinNode()
-{
-  delete _left;
-  delete _right;
-}
-//----------------------------------------------------------------------------------------------------------------------
-void JoinNode::calcFrequency()
-{
-  _freq = (_left ? _left->getFreq() : 0) + (_right ? _right->getFreq() : 0);
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool JoinNode::setLeft(TreeNode * node)
-{
-  if (_left != nullptr)
-    return false;
-  _left = node;
-  calcFrequency();
-  return true;
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool JoinNode::setRight(TreeNode * node)
-{
-  if (_right != nullptr)
-    return false;
-  _right = node;
-  calcFrequency();
-  return true;
-}
-//----------------------------------------------------------------------------------------------------------------------
-void JoinNode::setCode(const TreeCode & code)
-{
+void TreeNode::setCode(const TreeCode & code) {
   _code = code;
-  if (_left)
-    _left->setCode(_code.getCodeToTheLeft());
-  if (_right)
-    _right->setCode(_code.getCodeToTheRight());
 }
 //----------------------------------------------------------------------------------------------------------------------
-TreeNode * JoinNode::getLeft() const
-{
-  return _left;
-}
-//----------------------------------------------------------------------------------------------------------------------
-TreeNode * JoinNode::getRight() const
-{
-  return _right;
-}
-//----------------------------------------------------------------------------------------------------------------------
-std::string JoinNode::toString() const
-{
-  std::ostringstream ostream;
-  ostream << "(" << (_left ? _left->toString() : "NULL") << "-" << (_right ? _right->toString() : "NULL") << ":"
-          << _freq << ")";
-  return ostream.str();
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool JoinNode::put(TreeNode * node) {
-  if (node == nullptr)
-    return LOG(DBGERR) << "cannot put nullptr node into HaffmanImpl Tree";
-  if (setLeft(node) || setRight(node))
-    return true;
-  return LOG(DBGERR) << "cannot put node into full HaffmanImpl Tree";
-}
-//----------------------------------------------------------------------------------------------------------------------
-bool JoinNode::isFull() const {
-  return _left != nullptr && _right != nullptr;
-}
-//----------------------------------------------------------------------------------------------------------------------
-TreeNode::Type TreeNode::getType() const
-{
+TreeNode::Type TreeNode::getType() const {
   return _type;
 }
 //----------------------------------------------------------------------------------------------------------------------
-uint TreeNode::getFreq() const
-{
+uint TreeNode::getFreq() const {
   return _freq;
-}
-//----------------------------------------------------------------------------------------------------------------------
-void TreeNode::setFreq(uint freq)
-{
-  _freq = freq;
-}
-//----------------------------------------------------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------------------------------------
-void TreeNode::setCode(const TreeCode & code) {
-  _code = code;
 }
 //----------------------------------------------------------------------------------------------------------------------
 std::string LeafNode::toString() const {
@@ -121,12 +34,72 @@ const byte LeafNode::getSym() const {
   return _sym;
 }
 //----------------------------------------------------------------------------------------------------------------------
-void LeafNode::setSym(byte sym) {
-  _sym = sym;
+JoinNode::JoinNode(TreeNode * left, TreeNode * right) :
+  TreeNode(Type::Join),
+  _left(left), _right(right) {
+  calcFrequency();
 }
-
-void LeafNode::setCode(const TreeCode & code) {
+//----------------------------------------------------------------------------------------------------------------------
+JoinNode::JoinNode() : JoinNode(nullptr, nullptr) {}
+//----------------------------------------------------------------------------------------------------------------------
+JoinNode::~JoinNode() {
+  delete _left;
+  delete _right;
+}
+//----------------------------------------------------------------------------------------------------------------------
+bool JoinNode::put(TreeNode * node) {
+  if (node == nullptr)
+    return LOG(DBGERR) << "cannot put nullptr node into HaffmanImpl Tree";
+  if (setLeft(node) || setRight(node))
+    return true;
+  return LOG(DBGERR) << "cannot put node into full HaffmanImpl Tree";
+}
+//----------------------------------------------------------------------------------------------------------------------
+bool JoinNode::setLeft(TreeNode * node) {
+  if (_left != nullptr)
+    return false;
+  _left = node;
+  calcFrequency();
+  return true;
+}
+//----------------------------------------------------------------------------------------------------------------------
+bool JoinNode::setRight(TreeNode * node) {
+  if (_right != nullptr)
+    return false;
+  _right = node;
+  calcFrequency();
+  return true;
+}
+//----------------------------------------------------------------------------------------------------------------------
+TreeNode * JoinNode::getLeft() const {
+  return _left;
+}
+//----------------------------------------------------------------------------------------------------------------------
+TreeNode * JoinNode::getRight() const {
+  return _right;
+}
+//----------------------------------------------------------------------------------------------------------------------
+bool JoinNode::isFull() const {
+  return _left != nullptr && _right != nullptr;
+}
+//----------------------------------------------------------------------------------------------------------------------
+void JoinNode::calcFrequency() {
+  _freq = (_left ? _left->getFreq() : 0) + (_right ? _right->getFreq() : 0);
+}
+//----------------------------------------------------------------------------------------------------------------------
+void JoinNode::setCode(const TreeCode & code) {
   _code = code;
+  if (_left)
+    _left->setCode(_code.getCodeToTheLeft());
+  if (_right)
+    _right->setCode(_code.getCodeToTheRight());
+}
+//----------------------------------------------------------------------------------------------------------------------
+std::string JoinNode::toString() const {
+  std::ostringstream ostream;
+  ostream << "(" << (_left ? _left->toString() : "NULL") << "-" << (_right ? _right->toString() : "NULL") << ":"
+          << _freq << ")";
+  return ostream.str();
 }
 //----------------------------------------------------------------------------------------------------------------------
 }

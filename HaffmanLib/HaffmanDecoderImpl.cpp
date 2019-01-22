@@ -32,7 +32,6 @@ bool HaffmanDecoderImpl::processState(VecByte & buffer) {
   case State::Finished:
     return true;
   case State::Error:
-  case State::MagicNumReading:
     return false;
   }
   return false;
