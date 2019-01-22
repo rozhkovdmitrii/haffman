@@ -19,8 +19,10 @@ build/decode/%.o: FileDecoder/%.cpp
 build/haffmanLib.a:
 	@echo "... Building haffmanLib.a"
 	$(MAKE) -f haffmanLib.make build/haffmanLib.a
+.PHONY : build/haffmanLib.a
 
 clean:
 	@echo "... Clean decode"
 	@$(RM) bin/decode
 	@$(RM) $(OBJECTS) $(DEPS)
+.PHONY : clean
