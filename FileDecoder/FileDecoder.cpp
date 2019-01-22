@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 namespace Haffman
 {
-
+//----------------------------------------------------------------------------------------------------------------------
 FileDecoder::FileDecoder(const std::string & ifPath, const std::string & ofPath) :
   _ifPath(ifPath),
   _ofPath(ofPath),
@@ -15,6 +15,10 @@ FileDecoder::FileDecoder(const std::string & ifPath, const std::string & ofPath)
 //----------------------------------------------------------------------------------------------------------------------
 bool FileDecoder::decodeInputFile() {
   return isReadyToDecode() && decodeMaginNum() && decodeBlocks();
+}
+//----------------------------------------------------------------------------------------------------------------------
+const std::string & Haffman::FileDecoder::getIfPath() const {
+  return _ifPath;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileDecoder::isReadyToDecode() const {
@@ -44,8 +48,7 @@ bool FileDecoder::decodeBlocks() {
       return LOG(APPERR) << "Reading next block failed, can not read more, but data expected";
 
     VecByte decBuffer;
-    _haffmanDecoder.addDataAndTryToDecode(_buffer.begin(), _buffer.begin() + readedCount, decBuffer);
-    if (_haffmanDecoder.isError())
+    if (!_haffmanDecoder.addDataAndTryToDecode(_buffer.begin(), _buffer.begin() + readedCount, decBuffer))
      return LOG(APPERR) << "Decoding failed";
     if (!decBuffer.empty() && !_ofstream.write(reinterpret_cast<const char *>(decBuffer.data()), decBuffer.size()))
       return LOG(APPERR) << "Write decoded data into out file failed";
@@ -53,10 +56,6 @@ bool FileDecoder::decodeBlocks() {
   }
 
   return true;
-}
-//----------------------------------------------------------------------------------------------------------------------
-const std::string & Haffman::FileDecoder::getIfPath() const {
-  return _ifPath;
 }
 //----------------------------------------------------------------------------------------------------------------------
 }

@@ -30,6 +30,12 @@ bool TreeCode::operator==(const TreeCode & right) const {
   return _size == right._size && _base == right._base;
 }
 //----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+bool WriteTreeCodeState::isEmpty() const {
+  return _bufferedCount == 0;
+}
+//----------------------------------------------------------------------------------------------------------------------
 bool WriteTreeCodeState::putAndCheckPossibleToWrite(const TreeCode & treeCode, ushort & toBeWrote) {
   int rest = DigitCount - _bufferedCount;
   if (rest > treeCode._size) {
@@ -48,4 +54,5 @@ std::ostream & operator<<(std::ostream & ostream, const TreeCode & code) {
   ostream << "{" << std::hex << "0x" << std::setw(2) << std::setfill('0') << code._base << ":" << code._size << "}";
   return ostream;
 }
+//----------------------------------------------------------------------------------------------------------------------
 }

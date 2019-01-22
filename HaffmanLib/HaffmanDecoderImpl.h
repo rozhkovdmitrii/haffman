@@ -1,14 +1,13 @@
+//----------------------------------------------------------------------------------------------------------------------
 #ifndef HAFFMAN_HAFFMANDECODER_H
 #define HAFFMAN_HAFFMANDECODER_H
-
+//----------------------------------------------------------------------------------------------------------------------
 #include "FrequencyTable.h"
 #include "Log.h"
-
+//----------------------------------------------------------------------------------------------------------------------
 namespace HaffmanImpl
 {
-
-
-
+//----------------------------------------------------------------------------------------------------------------------
 class HaffmanDecoderImpl {
 public:
   HaffmanDecoderImpl();
@@ -21,24 +20,23 @@ public:
   bool decodeHead();
   bool decodePayload(VecByte & buffer);
 
-  template <typename T>
-  bool read(T & value);
-
   const FrequencyTable & getFrequencyTable() const;
   const bool isFinished() const;
-  const bool isError() const;
+
 private:
   enum class State {
     BlocksCountReading,
     HeadReading,
     PayloadReading,
-    Finished,
-    Error
+    Finished
   };
 
   enum {
     MaxUselessDataSize = 1024
   };
+
+  template <typename T>
+  bool read(T & value);
 
   bool processState(VecByte & buffer);
 
@@ -60,7 +58,7 @@ private:
   State _state;
   uint _blocksCount;
 };
-
+//----------------------------------------------------------------------------------------------------------------------
 template<typename T>
 bool HaffmanDecoderImpl::read(T & value) {
   if (_dataLength < sizeof(T)) {
@@ -71,12 +69,11 @@ bool HaffmanDecoderImpl::read(T & value) {
   _dataLength -= sizeof(T);
   return true;
 }
-
-
+//----------------------------------------------------------------------------------------------------------------------
 template <typename T>
 bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer) {
   addData(begin, end);
-  while (_state != State::Finished && _state != State::Error) {
+  while (_state != State::Finished) {
     auto dataIndex = _dataIndex;
     auto dataLength = _dataLength;
     auto bufferSize = buffer.size();
@@ -87,25 +84,22 @@ bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer)
       buffer.resize(bufferSize);
       break;
     }
-
   }
 
   if (_dataIndex > MaxUselessDataSize)
     clearUselessData();
 
-
   return _state == State::Finished;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 template <typename T>
 void HaffmanDecoderImpl::addData(T begin,T end) {
   auto size = std::distance(begin, end);
   _data.reserve(_data.size() + size);
   std::copy(begin, end, std::back_inserter(_data));
   _dataLength = _data.size() - _dataIndex;
-
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 #endif //HAFFMAN_HAFFMANDECODER_H

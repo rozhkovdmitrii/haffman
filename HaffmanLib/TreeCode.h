@@ -31,7 +31,7 @@ struct WriteTreeCodeState {
   };
 
   byte _bufferedCount = 0;
-  bool isEmpty() const { return _bufferedCount == 0; }
+  bool isEmpty() const;
   bool putAndCheckPossibleToWrite(const TreeCode & treeCode, ushort & toBeWrote);
 };
 //----------------------------------------------------------------------------------------------------------------------

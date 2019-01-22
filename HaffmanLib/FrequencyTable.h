@@ -1,15 +1,12 @@
+//----------------------------------------------------------------------------------------------------------------------
 #ifndef HAFFMAN_FREQUENCYTABLE_H
 #define HAFFMAN_FREQUENCYTABLE_H
-
-#include <array>
-#include <algorithm>
-#include <vector>
-#include <iostream>
-
+//----------------------------------------------------------------------------------------------------------------------
 #include "HaffmanTree.h"
-
-namespace HaffmanImpl {
-
+//----------------------------------------------------------------------------------------------------------------------
+namespace HaffmanImpl
+{
+//----------------------------------------------------------------------------------------------------------------------
 class FrequencyTable {
 public:
   FrequencyTable();
@@ -21,6 +18,7 @@ public:
   VecFreqItem getFreqPack() const;
   uint getFrequencyOf(byte symb) const;
   void setFrequencyOf(byte symb, uint freq);
+
   const HaffmanTree & getHaffmanTree() const;
   void reset();
   void buildTree();
@@ -28,18 +26,15 @@ public:
 private:
   HaffmanTree _haffmanTree;
   ArrUInt256 _rawFreqBuf;
-
-
 };
-
+//----------------------------------------------------------------------------------------------------------------------
 template<typename T>
 void FrequencyTable::takeFrequency(T from, T to) {
   for (auto it = from; it != to; ++it)
     ++_rawFreqBuf[(byte)*it];
-
 }
-
-
-
+//----------------------------------------------------------------------------------------------------------------------
 }
+//----------------------------------------------------------------------------------------------------------------------
 #endif //HAFFMAN_FREQUENCYTABLE_H
+//----------------------------------------------------------------------------------------------------------------------

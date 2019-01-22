@@ -14,6 +14,7 @@ class HaffmanTree
 public:
   HaffmanTree();
   explicit HaffmanTree(const VecFreqItem & vecFreqItem);
+
   HaffmanTree(HaffmanTree && haffmanTree) noexcept = delete;
   HaffmanTree & operator=(HaffmanTree && haffmanTree) noexcept = delete;
   HaffmanTree(const HaffmanTree &) = delete;
@@ -21,7 +22,6 @@ public:
 
   ~HaffmanTree();
   JoinNode * getTop() const;
-  std::string toString() const;
 
   const TreeCode & getCode(byte sym) const;
   void resetFrom(const VecFreqItem & vecFreqItem);

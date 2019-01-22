@@ -23,9 +23,7 @@ public:
   bool encodeHeader(const FrequencyTable & freqTable, VecByte & buffer);
   template <typename T>
   bool encodePayload(T begin, T end, VecByte & buffer);
-
   bool encode(const FreqItem &, VecByte & buffer);
-
   template <typename T>
   void write( const T & value, VecByte & buffer);
 
@@ -36,6 +34,13 @@ private:
   FrequencyTable _freqTable;
   uint _wroteSize = 0;
 };
+//----------------------------------------------------------------------------------------------------------------------
+template <typename T>
+void HaffmanEncoderImpl::prepareToEncode(T begin, T end) {
+  _freqTable.reset();
+  _freqTable.takeFrequency(begin, end);
+  _freqTable.buildTree();
+}
 //----------------------------------------------------------------------------------------------------------------------
 template<typename T>
 void HaffmanEncoderImpl::write(const T & value, VecByte & buffer) {
@@ -57,13 +62,6 @@ bool HaffmanEncoderImpl::encodeBlock(T begin, T end, VecByte & buffer) {
 
   return true;
 }
-
-template <typename T>
-void HaffmanEncoderImpl::prepareToEncode(T begin, T end) {
-  _freqTable.reset();
-  _freqTable.takeFrequency(begin, end);
-  _freqTable.buildTree();
-}
 //----------------------------------------------------------------------------------------------------------------------
 template <typename T>
 bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
@@ -83,7 +81,7 @@ bool HaffmanEncoderImpl::encodePayload(T begin, T end, VecByte & buffer) {
     write(encPayloadState._buffer, buffer);
 
   uint wroteSize =  buffer.size() - baseBuffSize;
-  if (wroteSize < 4)
+  if (wroteSize < sizeof(uint))
     return LOG(DBGERR) << "Encode TreeCode vector: buffer should contain at list 5 bytes";
   return true;
 }

@@ -9,6 +9,8 @@
 namespace HaffmanImpl
 {
 //----------------------------------------------------------------------------------------------------------------------
+HaffmanTree::HaffmanTree() : _top(nullptr) {}
+//----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::HaffmanTree(const VecFreqItem & vecFreqItem) {
   resetFrom(vecFreqItem);
 }
@@ -21,6 +23,20 @@ void HaffmanTree::resetFrom(const VecFreqItem & vecFreqItem) {
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanTree::~HaffmanTree() {
   delete _top;
+}
+//----------------------------------------------------------------------------------------------------------------------
+JoinNode * HaffmanTree::getTop() const {
+  return _top;
+}
+//----------------------------------------------------------------------------------------------------------------------
+const TreeCode & HaffmanTree::getCode(byte sym) const {
+  const static TreeCode empty;
+  if (_rawLeafNodes[sym] == nullptr)
+  {
+    LOG(DBGERR) << "Getting code fo sym '" << sym << "' failed";
+    return empty;
+  }
+  return _rawLeafNodes[sym]->getCode();
 }
 //----------------------------------------------------------------------------------------------------------------------
 void HaffmanTree::buildFrom(const VecFreqItem & vecFreqItem) {
@@ -69,9 +85,7 @@ void HaffmanTree::updateCachedCodes(TreeNode * treeNode) {
 //----------------------------------------------------------------------------------------------------------------------
 void HaffmanTree::indexTree() {
   if (!_top)
-  {
     return;
-  }
   _top->setCode(TreeCode());
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -80,26 +94,6 @@ void HaffmanTree::reset() {
   delete _top;
   _top = nullptr;
 }
-//----------------------------------------------------------------------------------------------------------------------
-JoinNode * HaffmanTree::getTop() const {
-  return _top;
-}
-//----------------------------------------------------------------------------------------------------------------------
-std::string HaffmanTree::toString() const {
-  return (_top == nullptr) ? "()" : _top->toString();
-}
-//----------------------------------------------------------------------------------------------------------------------
-const TreeCode & HaffmanTree::getCode(byte sym) const {
-  const static TreeCode empty;
-  if (_rawLeafNodes[sym] == nullptr)
-  {
-    LOG(DBGERR) << "Getting code fo sym '" << sym << "' failed";
-    return empty;
-  }
-  return _rawLeafNodes[sym]->getCode();
-}
-//----------------------------------------------------------------------------------------------------------------------
-HaffmanTree::HaffmanTree() : _top(nullptr) {}
 //----------------------------------------------------------------------------------------------------------------------
 }
 //----------------------------------------------------------------------------------------------------------------------
