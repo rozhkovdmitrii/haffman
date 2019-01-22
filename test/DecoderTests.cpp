@@ -1,11 +1,13 @@
+//----------------------------------------------------------------------------------------------------------------------
 #include <fstream>
-
-#include <HaffmanEncoderImpl.h>
+//----------------------------------------------------------------------------------------------------------------------
 #include "gtest/gtest.h"
+//----------------------------------------------------------------------------------------------------------------------
+#include "HaffmanEncoderImpl.h"
 #include "HaffmanDecoderImpl.h"
-
+//----------------------------------------------------------------------------------------------------------------------
 using namespace HaffmanImpl;
-
+//----------------------------------------------------------------------------------------------------------------------
 class DecodingTests : public testing::Test {
 protected:
   virtual void SetUp() {
@@ -16,12 +18,7 @@ protected:
 
   HaffmanImpl::HaffmanDecoderImpl _decoder;
 };
-
-TEST_F(DecodingTests, DecodeEmptyTest)
-{
-
-}
-
+//----------------------------------------------------------------------------------------------------------------------
 TEST_F(DecodingTests, DecodeFrequencyTableTest)
 {
   VecByte data1 = {
@@ -54,7 +51,7 @@ TEST_F(DecodingTests, DecodeFrequencyTableTest)
   EXPECT_EQ(2, freqTable.getFrequencyOf('p'));
   EXPECT_EQ(1, freqTable.getFrequencyOf('r'));
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 TEST_F(DecodingTests, DecodeSequence)
 {
 
@@ -85,7 +82,7 @@ TEST_F(DecodingTests, DecodeSequence)
   VecByte expected {'b', 'e', 'e', 'p', ' ', 'b', 'o', 'o', 'p', ' ', 'b', 'e', 'e', 'r', '!'};
   EXPECT_EQ(expected, buffer);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 TEST_F(DecodingTests, DecodeInTwoStepsTest)
 {
   HaffmanEncoderImpl encoder;
@@ -103,8 +100,7 @@ TEST_F(DecodingTests, DecodeInTwoStepsTest)
   std::string result(decBuffer.begin(), decBuffer.end());
   EXPECT_EQ(VecByte(str.begin(), str.end()), decBuffer);
 }
-
-
+//----------------------------------------------------------------------------------------------------------------------
 TEST_F(DecodingTests, ComplexDataTest)
 {
 
@@ -251,12 +247,11 @@ TEST_F(DecodingTests, ComplexDataTest)
 
   const HaffmanTree & tree = encoder.getHaffmanTree();
 
-
   VecByte dec;
   _decoder.addDataAndTryToDecode(enc.begin(), enc.end(), dec);
   EXPECT_EQ(init, dec);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 TEST_F(DecodingTests, SegfaultTest)
 {
   VecByte txt  = {
@@ -938,7 +933,6 @@ TEST_F(DecodingTests, SegfaultTest)
   VecByte decData;
   decoder.decodePayload(decData);
   ASSERT_EQ(txt, decData);
-
-
 }
+//----------------------------------------------------------------------------------------------------------------------
 
