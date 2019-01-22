@@ -14,7 +14,7 @@ FileDecoder::FileDecoder(const std::string & ifPath, const std::string & ofPath)
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool FileDecoder::decodeInputFile() {
-  return isReadyToDecode() && decodeMaginNum() && decodeBlocks();
+  return decodeMaginNum() && decodeBlocks();
 }
 //----------------------------------------------------------------------------------------------------------------------
 const std::string & Haffman::FileDecoder::getIfPath() const {
@@ -49,7 +49,7 @@ bool FileDecoder::decodeBlocks() {
 
     VecByte decBuffer;
     if (!_haffmanDecoder.addDataAndTryToDecode(_buffer.begin(), _buffer.begin() + readedCount, decBuffer))
-     return LOG(APPERR) << "Decoding failed";
+      continue;
     if (!decBuffer.empty() && !_ofstream.write(reinterpret_cast<const char *>(decBuffer.data()), decBuffer.size()))
       return LOG(APPERR) << "Write decoded data into out file failed";
     _ofstream.flush();

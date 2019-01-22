@@ -19,9 +19,9 @@ public:
   explicit FileDecoder(const std::string & ifPath, const std::string & ofPath);
   bool decodeInputFile();
   const std::string & getIfPath() const;
+  bool isReadyToDecode() const;
 
 private:
-  bool isReadyToDecode() const;
   bool decodeMaginNum();
   bool decodeBlocks();
 
