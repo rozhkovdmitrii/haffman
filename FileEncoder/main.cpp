@@ -4,11 +4,13 @@
 #include "FileEncoder.h"
 //----------------------------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
-  if (argc !=  3)
-    return LOG(APPERR) << "Should be 2 arguments. Passed: " << argc - 1;
-
-  Log::setEnabled(Log::Type::DBGERR, true);
-  Log::setEnabled(Log::Type::APPERR, true);
+  const char * msg = "'encode' -- encodes any input file using Huffman algorithm:\n"
+                     "\n"
+                     "> encode <input-file> <output-file>";
+  if (argc !=  3) {
+    std::cout << msg << std::endl << "Should be 2 arguments. Passed: " << argc - 1 << std::endl;
+    return 1;
+  }
 
   Haffman::FileEncoder encoder(argv[1], argv[2]);
   if (!encoder.encodeInputFile())

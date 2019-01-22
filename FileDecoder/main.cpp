@@ -4,7 +4,7 @@
 #include "FileDecoder.h"
 //----------------------------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
-  const char * msg = "decode' -- decodes input file to the original one:\n"
+  const char * msg = "'decode' -- decodes input file to the original one:\n"
                      "\n"
                      "> decode <input-file> <output-file>";
 
