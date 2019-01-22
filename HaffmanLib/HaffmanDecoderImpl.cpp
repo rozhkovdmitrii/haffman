@@ -13,7 +13,6 @@ private:
   TreeNode * _top;
   TreeNode * _pos;
   const uint _encBytesCount;
-  byte _padding;
 };
 //----------------------------------------------------------------------------------------------------------------------
 HaffmanImpl::HaffmanDecoderImpl::HaffmanDecoderImpl() :
@@ -36,7 +35,7 @@ bool HaffmanDecoderImpl::processState(VecByte & buffer) {
   case State::MagicNumReading:
     return false;
   }
-  return  false;
+  return false;
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool HaffmanDecoderImpl::decodeHead() {
@@ -115,7 +114,7 @@ bool HaffmanDecoderImpl::decodePayload(VecByte & buffer) {
       return LOG(DBGERR) << "read next payload byte failed";
     for (int i = 0; i < 16 && decrypedCount < encBytesCount; ++i) { // TODO: relate to EncodeState
       byte decByte;
-      bool bit = (encByte & (1 << (15 - i))) == 0;
+      bool bit = (encByte & (1 << (15 - i))) != 0;
       if (decodeState.addBitAndTryToDecode(bit, decByte)) {
         ++decrypedCount;
         buffer.push_back(decByte);
@@ -155,14 +154,14 @@ const bool HaffmanDecoderImpl::isError() const {
 }
 //----------------------------------------------------------------------------------------------------------------------
 bool DecTreeCodeState::addBitAndTryToDecode(bool bit, byte & sym) {
-  JoinNode * pos = dynamic_cast<JoinNode *>(_pos);
+  auto * pos = dynamic_cast<JoinNode *>(_pos);
   if (pos == nullptr)
     return LOG(DBGERR) << "DecTreeCodeState unexpected state";
 
   _pos = bit ? pos->getRight() : pos->getLeft();
   if (_pos->getType() == TreeNode::Type::Join)
     return false;
-  LeafNode * leaf = dynamic_cast<LeafNode *>(_pos);
+  auto * leaf = dynamic_cast<LeafNode *>(_pos);
   if (leaf == nullptr)
     return false;
   _pos = _top;
