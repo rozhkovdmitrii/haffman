@@ -17,4 +17,4 @@ build/haffmanLib.a: $(OBJECTS)
 
 clean:
 	@echo "... Clean haffmanLib.a"
-	@$(RM) build/haffmanLib.a $(OBJECTS) $(DEPS)
+	@$(RM) build/haffmanLib.a $(OBJECTS)

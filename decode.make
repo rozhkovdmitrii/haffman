@@ -24,5 +24,5 @@ build/haffmanLib.a:
 clean:
 	@echo "... Clean decode"
 	@$(RM) bin/decode
-	@$(RM) $(OBJECTS) $(DEPS)
+	@$(RM) $(OBJECTS)
 .PHONY : clean

@@ -24,6 +24,6 @@ build/haffmanLib.a:
 clean:
 	@echo "... Clean encode"
 	@$(RM) bin/encode
-	@$(RM) $(OBJECTS) $(DEPS)
+	@$(RM) $(OBJECTS)
 
 .PHONY: clean
