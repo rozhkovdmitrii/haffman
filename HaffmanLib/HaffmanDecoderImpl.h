@@ -80,7 +80,7 @@ bool HaffmanDecoderImpl::addDataAndTryToDecode(T begin, T end, VecByte & buffer)
     if (!processState(buffer))
     {
       _dataIndex = dataIndex;
-      _dataLength = _dataLength;
+      _dataLength = dataLength;
       buffer.resize(bufferSize);
       break;
     }
